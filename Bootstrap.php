@@ -88,6 +88,18 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     }
 
     /**
+     * @return \Shopware_Components_Translation
+     */
+    private function getTranslator()
+    {
+        if (null === $this->translation) {
+            $this->translation = new Shopware_Components_Translation();
+        }
+
+        return $this->translation;
+    }
+
+    /**
      * Creates the backend config form
      *
      */
@@ -148,8 +160,8 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     }
 
     /**
-     * FilterSQLEvent
-     *
+     * @param Enlight_Event_EventArgs $args
+     * @return string
      */
     public function onGetArticlesByCategoryFilterSql (Enlight_Event_EventArgs $args)
     {
@@ -206,66 +218,8 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     }
 
     /**
-     * @return Shopware_Components_Translation
-     */
-    protected function getTranslationComponent()
-    {
-        if ($this->translation === null) {
-            $this->translation = new Shopware_Components_Translation();
-        }
-
-        return $this->translation;
-    }
-
-    /**
-     * Lang helper function
-     * @param $optionId
-     * @param $fallback
-     * @return mixed
-     */
-    private function getOptionTranslation($optionId, $fallback)
-    {
-        $sql= "SELECT objectdata
-               FROM s_core_translations
-               WHERE objecttype = ?
-               AND objectkey = ?
-               AND objectlanguage = ?";
-
-        $data = Shopware()->Db()->fetchOne($sql, array('configuratoroption', $optionId, Shopware()->Shop()->getId()));
-        if ($data) {
-            return unserialize($data);
-        } else {
-            return $fallback;
-        }
-    }
-
-    /**
-     * Lang helper function
-     * @param $groupId
-     * @param $fallback
-     * @return mixed
-     *
-     */
-    private function getGroupTranslation($groupId, $fallback)
-    {
-        $sql= "SELECT objectdata
-               FROM s_core_translations
-               WHERE objecttype = ?
-               AND objectkey = ?
-               AND objectlanguage = ?";
-        $data = Shopware()->Db()->fetchOne($sql, array('configuratorgroup', $groupId, Shopware()->Shop()->getId()));
-
-        if ($data) {
-            return unserialize($data);
-        } else {
-            return $fallback;
-        }
-    }
-
-
-    /**
      * Event
-     *
+     * @param Enlight_Event_EventArgs $args
      */
     public function onPostDispatch(Enlight_Event_EventArgs $args)
     {
@@ -365,7 +319,10 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
               {
                 array_push ($groupArray, $dataArray);
               }
-              $translation = $this->getGroupTranslation($row["GroupId"], array('name' => $row["GroupName"]));
+              $langCode = Shopware()->Shop()->getId();
+              $translator  = $this->getTranslator();
+              $translation = $translator->read($langCode,'configuratorgroup',$row["GroupId"]);
+
               $dataArray = Array();
               $dataArray["GroupId"] = $row["GroupId"];
               $dataArray["GroupName"] = $translation['name'];
@@ -394,7 +351,9 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                $dataArray["LinkRemoveOption"] = $optionID;
             }
 
-            $translation = $this->getOptionTranslation($row["OptionId"], array('name' => $row["OptionName"]));
+            $langCode = Shopware()->Shop()->getId();
+            $translator = $this->getTranslator();
+            $translation = $translator->read($langCode,'configuratoroption',$row["OptionId"]);
 
             array_push ($dataArray["Options"],
                 array(
