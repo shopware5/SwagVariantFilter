@@ -1,0 +1,9 @@
+
+.headingbox_nobg {
+    border-bottom: 0 !important;
+}
+
+.activeVariant{
+    background-image: none !important;
+    margin-left: -29px !important;
+}
