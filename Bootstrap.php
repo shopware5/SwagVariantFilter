@@ -26,7 +26,7 @@
  * @subpackage Plugin
  * @copyright  Copyright (c) 2012, shopware AG (http://www.shopware.de)
  * @version    1
- * @author     Markus Wenke
+ * @author     shopware AG
  * @author     $Author$
  */
 
@@ -38,12 +38,6 @@
 
 class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
-
-    /**
-     * @var Shopware_Components_Translation
-     */
-    protected $translation = null;
-
     /**
      * Installs the plugin
      *
@@ -85,18 +79,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     public function update($version)
     {
         return true;
-    }
-
-    /**
-     * @return \Shopware_Components_Translation
-     */
-    private function getTranslator()
-    {
-        if (null === $this->translation) {
-            $this->translation = new Shopware_Components_Translation();
-        }
-
-        return $this->translation;
     }
 
     /**
@@ -262,7 +244,9 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $subCategoriesTxt = implode (",", $idArray );
 
         $additionSQL = "";
-        $optionIdArray = explode  ("|", Shopware()->System()->_GET['oid']);
+        $optionIdVar = Shopware()->System()->_GET['oid'];
+        $optionIdArray = explode  ("|", $optionIdVar);
+        $optionIdArray = array_map('intval',$optionIdArray);
         $optionIDs = implode (",", $optionIdArray);
         if ($optionIDs != "")
         {
@@ -307,11 +291,14 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $groupArray = Array();
         $dataArray = Array();
         $optionIdHash = Array();
-        $optionIdVar = Shopware()->System()->_GET['oid'];
-        $optionIdArray = explode ("|", $optionIdVar );
-        foreach ($optionIdArray as $Id) {
-          $optionIdHash[$Id] = true;
+
+        foreach ($optionIdArray as $id) {
+          $optionIdHash[$id] = true;
         }
+
+        $langCode = Shopware()->Shop()->getId();
+        $translator  = new Shopware_Components_Translation();
+
         foreach($results as $row) {
             if ($row["GroupId"] != $lastGroupId)
             {
@@ -319,8 +306,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
               {
                 array_push ($groupArray, $dataArray);
               }
-              $langCode = Shopware()->Shop()->getId();
-              $translator  = $this->getTranslator();
+
               $translation = $translator->read($langCode,'configuratorgroup',$row["GroupId"]);
 
               $dataArray = Array();
@@ -351,8 +337,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                $dataArray["LinkRemoveOption"] = $optionID;
             }
 
-            $langCode = Shopware()->Shop()->getId();
-            $translator = $this->getTranslator();
             $translation = $translator->read($langCode,'configuratoroption',$row["OptionId"]);
 
             array_push ($dataArray["Options"],
