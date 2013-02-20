@@ -38,6 +38,12 @@
 
 class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
+
+    /**
+     * @var Shopware_Components_Translation
+     */
+    protected $translation = null;
+
     /**
      * Installs the plugin
      *
@@ -104,7 +110,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $form = $this->Form();
         $translations = array(
             'en_GB' => array(
-                'categoryids' => 'Enabled in this categories (comma separated)',
+                'categoryids' => 'Enabled in these categories (comma separated)',
             )
         );
 
@@ -148,55 +154,67 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     public function onGetArticlesByCategoryFilterSql (Enlight_Event_EventArgs $args)
     {
         $sql = $args->getReturn();
-        $OptionIdArray = explode  ("|", Shopware()->System()->_GET['oid']);
-        $sOptionIDs = implode (",", $OptionIdArray);
-        if ($sOptionIDs != "")
+        $optionIdArray = explode  ("|", Shopware()->System()->_GET['oid']);
+        $optionIdArray = array_map('intval',$optionIdArray);
+        $optionIDs = implode (",", $optionIdArray);
+        if ($optionIDs != "")
         {
 
-              $SQLTmp = "
+              $sqlTmp = "
                             SELECT
                                 s_article_configurator_options.id,
                                 s_article_configurator_options.group_id
                                 FROM
                                 s_article_configurator_options
-                                WHERE id in ($sOptionIDs) ORDER BY group_id;
-";
+                                WHERE id in ($optionIDs) ORDER BY group_id;
+                      ";
 
-            $results = Shopware()->Db()->fetchAll($SQLTmp, array());
+            $results = Shopware()->Db()->fetchAll($sqlTmp, array());
 
-            $NewSQL = "ON aTax.id=a.taxID
+            $newSQL = "ON aTax.id=a.taxID
             ";
 
-            $Groups = Array();
-            foreach($results as $Row)
+            $groups = Array();
+            foreach($results as $row)
             {
-                if (!is_array ($Groups[$Row["group_id"]]))
+                if (!is_array ($groups[$row["group_id"]]))
                 {
-                    $Groups[$Row["group_id"]] = Array();
+                    $groups[$row["group_id"]] = Array();
                 }
-                array_push($Groups[$Row["group_id"]],$Row["id"]);
+                array_push($groups[$row["group_id"]],$row["id"]);
             }
 
-            $TmpSQL = "";
-            foreach($Groups as $Group => $IDArray)
+            $tmpSQL = "";
+            foreach($groups as $group => $idArray)
             {
-                $TmpSQL = $TmpSQL . "
-                    JOIN s_article_configurator_option_relations AS acor$Group
-                    ON acor$Group.article_id = aDetails.id
-                    JOIN s_article_configurator_options AS aco$Group
-                    ON acor$Group.option_id in (" . implode (",", $IDArray) . ") and aco$Group.group_id = $Group
-                    AND acor$Group.option_id=aco$Group.id
+                $tmpSQL = $tmpSQL . "
+                    JOIN s_article_configurator_option_relations AS acor$group
+                    ON acor$group.article_id = aDetails.id
+                    JOIN s_article_configurator_options AS aco$group
+                    ON acor$group.option_id in (" . implode (",", $idArray) . ") and aco$group.group_id = $group
+                    AND acor$group.option_id=aco$group.id
                     ";
             }
-            if ($TmpSQL != "")
+            if ($tmpSQL != "")
             {
-                $NewSQL .= " AND a.id in (SELECT s_articles.id from s_articles, s_articles_details as aDetails "
-                        . $TmpSQL . " where  aDetails.articleID=s_articles.id) ";
+                $newSQL .= " AND a.id in (SELECT s_articles.id from s_articles, s_articles_details as aDetails "
+                        . $tmpSQL . " where  aDetails.articleID=s_articles.id) ";
             }
-            $sql = str_replace("ON aTax.id=a.taxID", $NewSQL, $sql);
+            $sql = str_replace("ON aTax.id=a.taxID", $newSQL, $sql);
+        }
+        return $sql;
+    }
+
+    /**
+     * @return Shopware_Components_Translation
+     */
+    protected function getTranslationComponent()
+    {
+        if ($this->translation === null) {
+            $this->translation = new Shopware_Components_Translation();
         }
 
-        return $sql;
+        return $this->translation;
     }
 
     /**
@@ -264,49 +282,49 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         if ($config->categoryids != "")
         {
-            $CurrentCategoryId = $request->sCategory;
-            $CategoryArray = explode  (",", $config->categoryids);
-            $bFound = false;
-            foreach ($CategoryArray as $CategoryId) {
-                if ($CategoryId == $CurrentCategoryId)
+            $currentCategoryId = $request->sCategory;
+            $categoryArray = explode  (",", $config->categoryids);
+            $found = false;
+            foreach ($categoryArray as $categoryId) {
+                if ($categoryId == $currentCategoryId)
                 {
-                  $bFound = true;
+                  $found = true;
                   break;
                 }
             }
-            if ($bFound == false)
+            if ($found == false)
             {
               return;
             }
         }
 
-        $aTmpArray = Array();
+        $idArray = Array();
 
         $subCategories = Shopware()->Modules()->Categories()->sGetWholeCategoryTree($request->sCategory);
-        foreach ($subCategories as $Tmp) {
-            array_push($aTmpArray, $Tmp["id"]);
+        foreach ($subCategories as $entry) {
+            array_push($idArray, $entry["id"]);
         }
-        array_push($aTmpArray, $request->sCategory);
-        $subCategoriesTxt = implode (",", $aTmpArray );
+        array_push($idArray, $request->sCategory);
+        $subCategoriesTxt = implode (",", $idArray );
 
-        $AdditionSQL = "";
-        $OptionIdArray = explode  ("|", Shopware()->System()->_GET['oid']);
-        $sOptionIDs = implode (",", $OptionIdArray);
-        if ($sOptionIDs != "")
+        $additionSQL = "";
+        $optionIdArray = explode  ("|", Shopware()->System()->_GET['oid']);
+        $optionIDs = implode (",", $optionIdArray);
+        if ($optionIDs != "")
         {
-            $AdditionSQL = "
+            $additionSQL = "
                 SELECT DISTINCT
                   s_articles_details.articleID
                   FROM
                   s_articles_details
                   JOIN s_article_configurator_option_relations
                     ON s_article_configurator_option_relations.article_id = s_articles_details.id
-                    AND s_article_configurator_option_relations.option_id IN ($sOptionIDs)
+                    AND s_article_configurator_option_relations.option_id IN ($optionIDs)
                   JOIN s_articles_categories
                     ON s_articles_details.articleID=s_articles_categories.articleID
                     AND s_articles_categories.categoryID IN ($subCategoriesTxt)
                 ";
-            $AdditionSQL = "AND s_articles_categories.articleID IN ($AdditionSQL)";
+            $additionSQL = "AND s_articles_categories.articleID IN ($additionSQL)";
         }
 
         $sql = "
@@ -326,74 +344,75 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                     AND s_article_configurator_option_relations.article_id = s_articles_details.id
                     AND s_articles_details.articleID=s_articles_categories.articleID
                     AND s_articles_categories.categoryID IN ($subCategoriesTxt)
-                    $AdditionSQL
+                    $additionSQL
                     ORDER BY s_article_configurator_groups.id, s_article_configurator_options.name
                ";
 
         $results = Shopware()->Db()->fetchAll($sql, array());
-        $LastGroupId = 0;
-        $GroupArray = Array();
-        $TmpArray = Array();
-        $OptionIdHash = Array();
-        $OptionIdVar = Shopware()->System()->_GET['oid'];
-        $OptionIdArray = explode ("|", $OptionIdVar );
-        foreach ($OptionIdArray as $Id) {
-          $OptionIdHash[$Id] = true;
+        $lastGroupId = 0;
+        $groupArray = Array();
+        $dataArray = Array();
+        $optionIdHash = Array();
+        $optionIdVar = Shopware()->System()->_GET['oid'];
+        $optionIdArray = explode ("|", $optionIdVar );
+        foreach ($optionIdArray as $Id) {
+          $optionIdHash[$Id] = true;
         }
-        foreach($results as $Row) {
-            if ($Row["GroupId"] != $LastGroupId)
+        foreach($results as $row) {
+            if ($row["GroupId"] != $lastGroupId)
             {
-              if ($LastGroupId != 0)
+              if ($lastGroupId != 0)
               {
-                array_push ($GroupArray, $TmpArray);
+                array_push ($groupArray, $dataArray);
               }
-              $translation = $this->getGroupTranslation($Row["GroupId"], array('name' => $Row["GroupName"]));
-              $TmpArray = Array();
-              $TmpArray["GroupId"] = $Row["GroupId"];
-              $TmpArray["GroupName"] = $translation['name'];
-              $TmpArray["SubValueIsActive"] = false;
-              $TmpArray["LinkRemoveOption"] = $OptionIdVar;
-              $TmpArray["Options"] = array();
-              $LastGroupId = $Row["GroupId"];
+              $translation = $this->getGroupTranslation($row["GroupId"], array('name' => $row["GroupName"]));
+              $dataArray = Array();
+              $dataArray["GroupId"] = $row["GroupId"];
+              $dataArray["GroupName"] = $translation['name'];
+              $dataArray["SubValueIsActive"] = false;
+              $dataArray["LinkRemoveOption"] = $optionIdVar;
+              $dataArray["Options"] = array();
+              $lastGroupId = $row["GroupId"];
             }
-            $sTmp = $OptionIdVar;
-            if ($OptionIdHash[$Row["OptionId"]] != true)
+            $optionID = $optionIdVar;
+            if ($optionIdHash[$row["OptionId"]] != true)
             {
-                if ( $OptionIdVar != "")
+                if ( $optionIdVar != "")
                 {
-                    $sTmp .= "|";
+                    $optionID .= "|";
                 }
-                $sTmp .= $Row["OptionId"];
+                $optionID .= $row["OptionId"];
             }
             else
             {
-               $TmpArray["SubValueIsActive"] = true;
-               $sTmp = $TmpArray["LinkRemoveOption"];
-               $sTmp = "|" . $sTmp . "|";
-               $sTmp = str_replace("|".$Row["OptionId"]."|", "|", $sTmp);
-               $sTmp = trim ($sTmp, "|");
-               $sTmp = rtrim ($sTmp, "|");
-               $TmpArray["LinkRemoveOption"] = $sTmp;
+               $dataArray["SubValueIsActive"] = true;
+               $optionID = $dataArray["LinkRemoveOption"];
+               $optionID = "|" . $optionID . "|";
+               $optionID = str_replace("|".$row["OptionId"]."|", "|", $optionID);
+               $optionID = trim ($optionID, "|");
+               $optionID = rtrim ($optionID, "|");
+               $dataArray["LinkRemoveOption"] = $optionID;
             }
-            $translation = $this->getOptionTranslation($Row["OptionId"], array('name' => $Row["OptionName"]));
 
-            array_push ($TmpArray["Options"],
+            $translation = $this->getOptionTranslation($row["OptionId"], array('name' => $row["OptionName"]));
+
+            array_push ($dataArray["Options"],
                 array(
-                    "Id" => $Row["OptionId"],
-                    "IdForURL" => $sTmp,
+                    "Id" => $row["OptionId"],
+                    "IdForURL" => $optionID,
                     "Name" => $translation['name'],
-                    "Active" => $OptionIdHash[$Row["OptionId"]] == true,
+                    "Active" => $optionIdHash[$row["OptionId"]] == true,
                 ));
         }
-        if ($LastGroupId != 0)
+        if ($lastGroupId != 0)
         {
-            array_push ($GroupArray, $TmpArray);
+            array_push ($groupArray, $dataArray);
         }
 
         $view = $args->getSubject()->View();
         $config = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config();
         $view->SwagVariantFilterConfig = $config;
-        $view->GroupArray = $GroupArray;
+        $view->GroupArray = $groupArray;
         $view->BaseURL =  $args->getSubject()->Request()->getBasePath() . $args->getSubject()->Request()->getPathInfo();
         $this->Application()->Template()->addTemplateDir ($this->Path() . 'views/');
         $view->extendsTemplate("frontend/index.tpl");

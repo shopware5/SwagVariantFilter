@@ -1,5 +1,5 @@
 {block name="frontend_index_header_css_screen" append}
-    <link type="text/css" media="all" rel="stylesheet" href="{link file='frontend/_resources/styles/variant_filter.css'}" />
+    <link type="text/css" media="screen, presentation" rel="stylesheet" href="{link file='frontend/_resources/styles/variant_filter.css'}" />
 {/block}
 
 {block name='frontend_listing_right_filter_properties'}
@@ -21,7 +21,7 @@
                 {/foreach}
 
                 {if $Group.SubValueIsActive}
-                    <li class="close"><a href="{$BaseURL}?p=1&oid={$Group.LinkRemoveOption}" title="{$Option.Name}">Alle anzeigen</a></li>
+                    <li class="close"><a href="{$BaseURL}?p=1&oid={$Group.LinkRemoveOption}" title="{$Option.Name}">{s namespace="frontend/variant_filter" name='ListingFilterBoxShowAll'}Alle anzeigen{/s}</a></li>
                 {/if}
 
             </ul>
