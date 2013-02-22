@@ -7,7 +7,7 @@
     <h2 class="headingbox_nobg">{s name='FilterHeadline'}Filtern nach:{/s}</h2>
     <div class="supplier_filter">
     {foreach $GroupArray AS $Group}
-        <div >{$Group.GroupName} <span class="expandcollapse">+/span></div>
+        <div >{$Group.GroupName} <span class="expandcollapse">+</span></div>
         <div class="slideContainer">
             <ul>
                 {foreach $Group.Options AS $Option}
