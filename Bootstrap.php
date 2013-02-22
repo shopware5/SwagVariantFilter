@@ -245,7 +245,11 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         $additionSQL = "";
         $optionIdVar = Shopware()->System()->_GET['oid'];
-        $optionIdArray = explode  ("|", $optionIdVar);
+        if($optionIdVar != "")
+            $optionIdArray = explode("|", $optionIdVar);
+        else
+            $optionIdVar = "";
+
         $optionIdArray = array_map('intval',$optionIdArray);
         $optionIDs = implode (",", $optionIdArray);
         if ($optionIDs != "")
@@ -298,7 +302,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         $langCode = Shopware()->Shop()->getId();
         $translator  = new Shopware_Components_Translation();
-
         foreach($results as $row) {
             if ($row["GroupId"] != $lastGroupId)
             {
@@ -308,7 +311,10 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
               }
 
               $translation = $translator->read($langCode,'configuratorgroup',$row["GroupId"]);
-
+              if($translation['name'] == "")
+              {
+                 $translation['name'] = $row['GroupName'];
+              }
               $dataArray = Array();
               $dataArray["GroupId"] = $row["GroupId"];
               $dataArray["GroupName"] = $translation['name'];
@@ -338,6 +344,10 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             }
 
             $translation = $translator->read($langCode,'configuratoroption',$row["OptionId"]);
+            if($translation['name'] == "")
+            {
+                $translation['name'] = $row["OptionName"];
+            }
 
             array_push ($dataArray["Options"],
                 array(
