@@ -192,7 +192,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             if ($tmpSQL != "")
             {
                 $newSQL .= " AND a.id in (SELECT s_articles.id from s_articles, s_articles_details as aDetails "
-                        . $tmpSQL . " where  aDetails.articleID=s_articles.id) ";
+                        . $tmpSQL . " where  aDetails.articleID=s_articles.id and aDetails.active=1) ";
             }
             $sql = str_replace("ON aTax.id=a.taxID", $newSQL, $sql);
         }
