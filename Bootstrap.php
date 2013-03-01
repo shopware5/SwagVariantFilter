@@ -69,7 +69,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function getLabel()
     {
-        return 'Variantenfilter';
+        return 'Varianten Filter';
     }
 
     /**

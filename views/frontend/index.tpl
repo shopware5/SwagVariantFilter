@@ -4,7 +4,7 @@
 
 {block name='frontend_listing_right_filter_properties'}
 <div class="filter_properties">
-    <h2 class="headingbox_nobg">{s name='FilterHeadline'}Filtern nach:{/s}</h2>
+    <h2 class="headingbox_nobg">{s name='FilterHeadline'}Filtern nach Varianten{/s}</h2>
     <div class="supplier_filter">
     {foreach $GroupArray AS $Group}
         <div >{$Group.GroupName} <span class="expandcollapse">+</span></div>
