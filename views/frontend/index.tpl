@@ -2,7 +2,7 @@
     <link type="text/css" media="screen, presentation" rel="stylesheet" href="{link file='frontend/_resources/styles/variant_filter.css'}" />
 {/block}
 
-{block name='frontend_listing_right_filter_properties'}
+{block name='frontend_listing_right_filter_properties' append}
 <div class="filter_properties">
     <h2 class="headingbox_nobg">{s name='FilterHeadline'}Filtern nach Varianten{/s}</h2>
     <div class="supplier_filter">
