@@ -60,7 +60,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function getVersion()
     {
-        return '1.0.0';
+        return '1.0.1';
     }
 
     /**
@@ -194,7 +194,9 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                 $newSQL .= " AND a.id in (SELECT s_articles.id from s_articles, s_articles_details as aDetails "
                         . $tmpSQL . " where  aDetails.articleID=s_articles.id and aDetails.active=1) ";
             }
-            $sql = str_replace("ON aTax.id=a.taxID", $newSQL, $sql);
+
+            // Match SW 4.1 as well as SW 408 and before
+            $sql = preg_replace("#ON aTax.id ?= ?a.taxID#", $newSQL, $sql);
         }
         return $sql;
     }
@@ -237,6 +239,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $idArray = Array();
 
         $subCategories = Shopware()->Modules()->Categories()->sGetWholeCategoryTree($request->sCategory);
+        
         foreach ($subCategories as $entry) {
             array_push($idArray, $entry["id"]);
         }
@@ -270,25 +273,33 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         }
 
         $sql = "
-                 SELECT DISTINCT
-                   s_article_configurator_groups.id AS GroupId,
-                   s_article_configurator_groups.name AS GroupName,
-                   s_article_configurator_options.id AS OptionId,
-                   s_article_configurator_options.name AS OptionName
-                  FROM
-                    s_article_configurator_groups,
-                    s_article_configurator_options,
-                    s_article_configurator_option_relations,
-                    s_articles_categories,
-                    s_articles_details
-                  WHERE s_article_configurator_groups.id = s_article_configurator_options.group_id
-                    AND s_article_configurator_options.id = s_article_configurator_option_relations.option_id
-                    AND s_article_configurator_option_relations.article_id = s_articles_details.id
-                    AND s_articles_details.articleID=s_articles_categories.articleID
-                    AND s_articles_categories.categoryID IN ($subCategoriesTxt)
-                    $additionSQL
-                    ORDER BY s_article_configurator_groups.id, s_article_configurator_options.name
-               ";
+            SELECT DISTINCT
+                s_article_configurator_groups.id AS GroupId,
+                s_article_configurator_groups.name AS GroupName,
+                s_article_configurator_options.id AS OptionId,
+                s_article_configurator_options.name AS OptionName
+
+            FROM
+                s_article_configurator_groups
+
+            INNER JOIN s_article_configurator_options
+            ON s_article_configurator_options.group_id = s_article_configurator_groups.id
+
+            INNER JOIN s_article_configurator_option_relations
+            ON s_article_configurator_option_relations.option_id = s_article_configurator_options.id
+
+            INNER JOIN s_articles_details
+            ON s_articles_details.id = s_article_configurator_option_relations.article_id
+
+            INNER JOIN s_articles_categories
+            ON s_articles_categories.articleID = s_articles_details.articleID
+            AND s_articles_categories.categoryID IN ($subCategoriesTxt)
+            $additionSQL
+
+            ORDER BY s_article_configurator_groups.id, s_article_configurator_options.name
+
+        ";
+
 
         $results = Shopware()->Db()->fetchAll($sql, array());
         $lastGroupId = 0;
