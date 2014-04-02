@@ -139,11 +139,87 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $this->subscribeEvent('Enlight_Controller_Action_PostDispatch_Frontend_Listing', 'onPostDispatch');
         //Filter
         $this->subscribeEvent('Shopware_Modules_Articles_sGetArticlesByCategory_FilterSql','onGetArticlesByCategoryFilterSql');
+
+        $this->subscribeEvent('Shopware_Modules_Articles_sGetArticlesByCategory_FilterResult','afterGetArticlesByCategory');
+    }
+
+    /**
+     * @param Enlight_Event_EventArgs $arguments
+     * Filter articles based on selected variant filter
+     */
+    public function afterGetArticlesByCategory(Enlight_Event_EventArgs $arguments)
+    {
+        $result = $arguments->getReturn();
+        $request = Shopware()->Front()->Request();
+        $optionId = $request->getParam('oid');
+
+        if(empty($optionId))
+        {
+            return;
+        }
+
+        $perPage = $result["sPerPage"];
+
+        $activePerPage = $request->getParam('sPerPage') ||12;
+
+        foreach($perPage as &$singlePerPage)
+        {
+            $singlePerPage["link"] .= "&oid=".$optionId;
+            if($singlePerPage["markup"])
+            {
+                $activePerPage = $singlePerPage["value"];
+            }
+        }
+        $result["sPerPage"] = $perPage;
+        $pages = $result["sPages"];
+        for($i = 1; $i<$result["sNumberPages"]; $i++){
+            $pages["numbers"][$i]['link'].= "&oid=".$optionId;
+            $pages["numbers"][$i]['previous']= $pages["numbers"][$i-1]['link'];
+            $pages["numbers"][$i]['next']= $pages["numbers"][$i+1]['link'];
+        }
+
+        $result["sPages"] = $pages;
+        $result["sNumberArticles"] = $this->getTotalCount($request, $optionId);
+        $result["sNumberPages"] = ceil($result["sNumberArticles"] / $activePerPage);
+        $result["categoryParams"]["oid"] = $optionId;
+        $arguments->setReturn($result);
+    }
+
+    /**
+     * @param $request
+     * @param $optionId
+     * @return string
+     * function to get the total number of selected articles
+     */
+    private function getTotalCount($request, $optionId)
+    {
+        $idArray = Array();
+
+        $subCategories = Shopware()->Modules()->Categories()->sGetWholeCategoryTree($request->sCategory);
+
+        foreach ($subCategories as $entry) {
+            array_push($idArray, $entry["id"]);
+        }
+        array_push($idArray, $request->sCategory);
+        $subCategoriesTxt = implode (",", $idArray);
+
+        $optionIds = str_replace('|', ',', $optionId);
+
+        $sql = "SELECT count(DISTINCT ad.articleID) as totalCount 
+                FROM `s_article_configurator_option_relations` acor
+                JOIN s_articles_details ad ON acor.article_id = ad.id
+                JOIN s_articles_categories ac ON ad.articleID=ac.articleID
+                AND ac.categoryID IN ($subCategoriesTxt)
+                WHERE `option_id` IN ($optionIds)";
+        $totalCount = Shopware()->Db()->fetchOne($sql, array());
+
+        return $totalCount;
     }
 
     /**
      * @param Enlight_Event_EventArgs $args
      * @return string
+     *
      */
     public function onGetArticlesByCategoryFilterSql (Enlight_Event_EventArgs $args)
     {
@@ -153,7 +229,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $optionIDs = implode (",", $optionIdArray);
         if ($optionIDs != "")
         {
-
               $sqlTmp = "
                             SELECT
                                 s_article_configurator_options.id,
@@ -164,10 +239,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                       ";
 
             $results = Shopware()->Db()->fetchAll($sqlTmp, array());
-
-            $newSQL = "ON aTax.id=a.taxID
-            ";
-
+            $newSQL = "ON aTax.id=a.taxID";
             $groups = Array();
             foreach($results as $row)
             {
@@ -196,8 +268,9 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             }
 
             // Match SW 4.1 as well as SW 408 and before
-            $sql = preg_replace("#ON aTax.id ?= ?a.taxID#", $newSQL, $sql);
+           $sql = preg_replace("#ON aTax.id ?= ?a.taxID#", $newSQL, $sql);
         }
+
         return $sql;
     }
 
@@ -215,7 +288,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         ){
             return;
         }
-
         $config = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config();
 
         if ($config->categoryids != "")
@@ -237,9 +309,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         }
 
         $idArray = Array();
-
         $subCategories = Shopware()->Modules()->Categories()->sGetWholeCategoryTree($request->sCategory);
-        
         foreach ($subCategories as $entry) {
             array_push($idArray, $entry["id"]);
         }
@@ -248,14 +318,16 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         $additionSQL = "";
         $optionIdVar = Shopware()->System()->_GET['oid'];
+
         if($optionIdVar != "")
             $optionIdArray = explode("|", $optionIdVar);
         else
             $optionIdVar = "";
 
         $optionIdArray = array_map('intval',$optionIdArray);
-        $optionIDs = implode (",", $optionIdArray);
-        if ($optionIDs != "")
+        $optionIds = implode (",", $optionIdArray);
+
+        if ($optionIds != "")
         {
             $additionSQL = "
                 SELECT DISTINCT
@@ -264,7 +336,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                   s_articles_details
                   JOIN s_article_configurator_option_relations
                     ON s_article_configurator_option_relations.article_id = s_articles_details.id
-                    AND s_article_configurator_option_relations.option_id IN ($optionIDs)
+                    AND s_article_configurator_option_relations.option_id IN ($optionIds)
                   JOIN s_articles_categories
                     ON s_articles_details.articleID=s_articles_categories.articleID
                     AND s_articles_categories.categoryID IN ($subCategoriesTxt)
@@ -300,7 +372,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         ";
 
-
         $results = Shopware()->Db()->fetchAll($sql, array());
         $lastGroupId = 0;
         $groupArray = Array();
@@ -335,14 +406,18 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
               $lastGroupId = $row["GroupId"];
             }
             $optionID = $optionIdVar;
+
             if ($optionIdHash[$row["OptionId"]] != true)
             {
+
                 if ( $optionIdVar != "")
                 {
                     $optionID .= "|";
                 }
                 $optionID .= $row["OptionId"];
+
             }
+
             else
             {
                $dataArray["SubValueIsActive"] = true;
@@ -372,6 +447,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         {
             array_push ($groupArray, $dataArray);
         }
+
 
         $view = $args->getSubject()->View();
         $config = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config();
