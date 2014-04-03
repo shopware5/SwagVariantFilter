@@ -6,7 +6,6 @@
 {block name='frontend_listing_right_filter_properties' append}
 <div class="filter_properties">
     <h2 class="headingbox_nobg">{s name='FilterHeadlineVariants'}Variantenfilter{/s}</h2>
-
     <div class="supplier_filter">
     {foreach $GroupArray AS $Group}
         <div >{$Group.GroupName} <span class="expandcollapse">+</span></div>
@@ -24,7 +23,7 @@
                 {/foreach}
 
                 {if $Group.SubValueIsActive}
-                    <li class="close"><a href="{$BaseURL}?p=1&oid={$Group.LinkRemoveOption}" title="{$Option.Name}">{s namespace="frontend/variant_filter" name='ListingFilterBoxShowAll'}Alle anzeigen{/s}</a></li>
+                    <li class="close"><a href="{$BaseURL}?p=1" title="{$Option.Name}">{s namespace="frontend/variant_filter" name='ListingFilterBoxShowAll'}Alle anzeigen{/s}</a></li>
                 {/if}
 
             </ul>

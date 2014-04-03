@@ -99,7 +99,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     /**
      * Creates Translation
      */
-    public function createTranslations() 
+    public function createTranslations()
     {
         $form = $this->Form();
         $translations = array(
@@ -172,16 +172,34 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         }
         $result["sPerPage"] = $perPage;
         $pages = $result["sPages"];
-        for($i = 1; $i<$result["sNumberPages"]; $i++){
-            $pages["numbers"][$i]['link'].= "&oid=".$optionId;
-            $pages["numbers"][$i]['previous']= $pages["numbers"][$i-1]['link'];
-            $pages["numbers"][$i]['next']= $pages["numbers"][$i+1]['link'];
-        }
-
-        $result["sPages"] = $pages;
         $result["sNumberArticles"] = $this->getTotalCount($request, $optionId);
         $result["sNumberPages"] = ceil($result["sNumberArticles"] / $activePerPage);
+        $numbersArray=array();
+
+        for($i = 1; $i<=$result["sNumberPages"]; $i++)
+        {
+            foreach($pages["numbers"] as $page)
+            {
+                $numbersArray[$i]["markup"]= $pages["numbers"][$i]["markup"];
+                $numbersArray[$i]["value"]= $pages["numbers"][$i]["value"];
+                $numbersArray[$i]["link"]= $pages["numbers"][$i]["link"]."&oid=".$optionId;
+
+            }
+        }
+        $pages["numbers"]= $numbersArray;
+
+
+        if(!empty($pages["previous"])){
+            $pages["previous"] .= "&oid=".$optionId;
+        }
+        if(!empty($pages["next"])){
+            $pages["next"] .= "&oid=".$optionId;
+       }
+
+        $result["sPages"] = $pages;
+
         $result["categoryParams"]["oid"] = $optionId;
+
         $arguments->setReturn($result);
     }
 
