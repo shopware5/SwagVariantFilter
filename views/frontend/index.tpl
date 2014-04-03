@@ -3,7 +3,6 @@
 {/block}
 
 
-
 {block name='frontend_listing_right_filter_properties' append}
 <div class="filter_properties">
     <h2 class="headingbox_nobg">{s name='FilterHeadlineVariants'}Variantenfilter{/s}</h2>
@@ -17,7 +16,7 @@
 
                     {if $Option.Active}
                         <li class="active">
-                            <a class="activeVariant" href="{$BaseURL}?p=1&oid={$Option.IdForURL}" title="{$Option.Name}">{$Option.Name}</a>
+                            <a class="activeVariant" href="{$BaseURL}?p=1&oid={$Option.IdForRemoveURL}" title="{$Option.Name}">{$Option.Name}</a>
                         </li>
                     {else}
                         <li><a href="{$BaseURL}?p=1&oid={$Option.IdForURL}" title="{$Option.Name}">{$Option.Name}</a></li>

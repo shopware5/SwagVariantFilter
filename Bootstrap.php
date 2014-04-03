@@ -99,7 +99,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     /**
      * Creates Translation
      */
-    public function createTranslations()
+    public function createTranslations() 
     {
         $form = $this->Form();
         $translations = array(
@@ -377,6 +377,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $groupArray = Array();
         $dataArray = Array();
         $optionIdHash = Array();
+        $removeUrl="";
 
         foreach ($optionIdArray as $id) {
           $optionIdHash[$id] = true;
@@ -384,6 +385,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         $langCode = Shopware()->Shop()->getId();
         $translator  = new Shopware_Components_Translation();
+
         foreach($results as $row) {
             if ($row["GroupId"] != $lastGroupId)
             {
@@ -421,12 +423,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             else
             {
                $dataArray["SubValueIsActive"] = true;
-               $optionID = $dataArray["LinkRemoveOption"];
-               $optionID = "|" . $optionID . "|";
-               $optionID = str_replace("|".$row["OptionId"]."|", "|", $optionID);
-               $optionID = trim ($optionID, "|");
-               $optionID = rtrim ($optionID, "|");
-               $dataArray["LinkRemoveOption"] = $optionID;
             }
 
             $translation = $translator->read($langCode,'configuratoroption',$row["OptionId"]);
@@ -435,14 +431,26 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                 $translation['name'] = $row["OptionName"];
             }
 
+            $currentOid=$request->getParam('oid');
+            $optionsSelected = explode("|",$currentOid);
+            foreach ($optionsSelected as $key => $value){
+                if ( $optionsSelected[$key] == $row["OptionId"]){
+                    unset($optionsSelected[$key]);
+                }
+                $optionRemoved = implode("|", $optionsSelected);
+            }
+
             array_push ($dataArray["Options"],
                 array(
                     "Id" => $row["OptionId"],
                     "IdForURL" => $optionID,
                     "Name" => $translation['name'],
                     "Active" => $optionIdHash[$row["OptionId"]] == true,
+                    "IdForRemoveURL"=>$optionRemoved
+
                 ));
         }
+
         if ($lastGroupId != 0)
         {
             array_push ($groupArray, $dataArray);
