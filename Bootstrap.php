@@ -60,7 +60,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function getVersion()
     {
-        return '1.0.1';
+        return '1.0.2';
     }
 
     /**
