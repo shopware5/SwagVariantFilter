@@ -331,7 +331,9 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         foreach ($subCategories as $entry) {
             array_push($idArray, $entry["id"]);
         }
-        array_push($idArray, $request->sCategory);
+        if (!is_null($request->sCategory)) {
+            array_push($idArray, $request->sCategory);
+        }
         $subCategoriesTxt = implode (",", $idArray );
 
         $additionSQL = "";
