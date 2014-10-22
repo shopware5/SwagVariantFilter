@@ -38,6 +38,9 @@
 
 class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
+    // Temporary storage for groupIds
+    private $groups;
+
     /**
      * Installs the plugin
      *
@@ -94,6 +97,14 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             'value' => "",
             'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
         ));
+        $form->setElement('number', 'mininstock', array(
+                'label' => 'Artikel im Filterergebnis verbergen, falls Lagerbestand kleiner',
+                'description' => '',
+                'value' => 1,
+                'required' => true,
+                'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
+            ));
+
     }
 
     /**
@@ -135,7 +146,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function subscribeEvents()
     {
-        // Hoeren auf Controls: listing
+        // Hoeren auf Controller: listing
         $this->subscribeEvent('Enlight_Controller_Action_PostDispatch_Frontend_Listing', 'onPostDispatch');
         //Filter
         $this->subscribeEvent('Shopware_Modules_Articles_sGetArticlesByCategory_FilterSql','onGetArticlesByCategoryFilterSql');
@@ -144,8 +155,9 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     }
 
     /**
-     * @param Enlight_Event_EventArgs $arguments
      * Filter articles based on selected variant filter
+     *
+     * @param Enlight_Event_EventArgs $arguments
      */
     public function afterGetArticlesByCategory(Enlight_Event_EventArgs $arguments)
     {
@@ -160,7 +172,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         $perPage = $result["sPerPage"];
 
-        $activePerPage = $request->getParam('sPerPage') ||12;
+        $activePerPage = $request->getParam('sPerPage') || 12;
 
         foreach($perPage as &$singlePerPage)
         {
@@ -204,14 +216,23 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     }
 
     /**
+     * Query total number of currently selected articles
+     *
      * @param $request
      * @param $optionId
      * @return string
-     * function to get the total number of selected articles
+     *
      */
     private function getTotalCount($request, $optionId)
     {
+        $minInstock = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config()->mininstock;
+        $groupIds = array();
         $idArray = Array();
+
+        foreach ($this->groups as $k => $v) {
+            array_push($groupIds, $k);
+        }
+        $groupIds = implode(",", $groupIds);
 
         $subCategories = Shopware()->Modules()->Categories()->sGetWholeCategoryTree($request->sCategory);
 
@@ -223,9 +244,22 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         $optionIds = str_replace('|', ',', $optionId);
 
-        $sql = "SELECT count(DISTINCT ad.articleID) as totalCount 
+        // Append condition - filter articles which do not have sufficient instock
+        $additionalSQL = "(SELECT s_articles.id
+                             FROM   s_articles,s_articles_details AS aDetails
+                                    JOIN s_article_configurator_option_relations AS acor
+                                      ON acor.article_id = aDetails.id
+                                    JOIN s_article_configurator_options AS aco
+                                      ON acor.option_id IN ( $optionIds )
+                                         AND aco.group_id IN ( $groupIds )
+                                         AND acor.option_id = aco.id
+                             WHERE  aDetails.articleid = s_articles.id
+                                    AND aDetails.active = 1 AND aDetails.instock < $minInstock)";
+
+        // base query for total article count
+        $sql = "SELECT count(DISTINCT ad.articleID) as totalCount
                 FROM `s_article_configurator_option_relations` acor
-                JOIN s_articles_details ad ON acor.article_id = ad.id
+                JOIN s_articles_details ad ON acor.article_id = ad.id AND ad.articleID NOT IN $additionalSQL
                 JOIN s_articles_categories ac ON ad.articleID=ac.articleID
                 AND ac.categoryID IN ($subCategoriesTxt)
                 WHERE `option_id` IN ($optionIds)";
@@ -235,6 +269,8 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     }
 
     /**
+     * Modifies the onGetArticlesByCategoryFilterSql to filter Articles based on the selected options
+     *
      * @param Enlight_Event_EventArgs $args
      * @return string
      *
@@ -245,6 +281,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $optionIdArray = explode  ("|", Shopware()->System()->_GET['oid']);
         $optionIdArray = array_map('intval',$optionIdArray);
         $optionIDs = implode (",", $optionIdArray);
+        $minInstock = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config()->mininstock;
         if ($optionIDs != "")
         {
               $sqlTmp = "
@@ -257,7 +294,8 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                       ";
 
             $results = Shopware()->Db()->fetchAll($sqlTmp, array());
-            $newSQL = "ON aTax.id=a.taxID";
+            $newSQL = "ON aTax.id = a.taxID";
+            $whereSQL ="";
             $groups = Array();
             foreach($results as $row)
             {
@@ -267,6 +305,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                 }
                 array_push($groups[$row["group_id"]],$row["id"]);
             }
+            $this->groups = $groups;
 
             $tmpSQL = "";
             foreach($groups as $group => $idArray)
@@ -275,18 +314,29 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                     JOIN s_article_configurator_option_relations AS acor$group
                     ON acor$group.article_id = aDetails.id
                     JOIN s_article_configurator_options AS aco$group
-                    ON acor$group.option_id in (" . implode (",", $idArray) . ") and aco$group.group_id = $group
-                    AND acor$group.option_id=aco$group.id
+                    ON acor$group.option_id IN (" . implode (",", $idArray) . ") AND aco$group.group_id = $group
+                    AND acor$group.option_id = aco$group.id
                     ";
             }
+
             if ($tmpSQL != "")
             {
-                $newSQL .= " AND a.id in (SELECT s_articles.id from s_articles, s_articles_details as aDetails "
-                        . $tmpSQL . " where  aDetails.articleID=s_articles.id and aDetails.active=1) ";
+                $newSQL .= " AND a.id IN (SELECT s_articles.id from s_articles, s_articles_details AS aDetails "
+                        . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1) ";
+
+                $whereSQL .= " AND a.id NOT IN (SELECT s_articles.id from s_articles, s_articles_details AS aDetails "
+                    . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock < $minInstock) ";
             }
 
             // Match SW 4.1 as well as SW 408 and before
            $sql = preg_replace("#ON aTax.id ?= ?a.taxID#", $newSQL, $sql);
+
+            // append WHERE condition: filter articles which do not have sufficient  instock
+            $search = "/ WHERE ag.articleID IS NULL\s*AND a.active=1/";
+            if (preg_match($search, $sql) ) {
+              $replace =  "WHERE ag.articleID IS NULL AND a.active=1" . $whereSQL;
+              $sql = preg_replace($search, $replace, $sql);
+            }
         }
 
         return $sql;
@@ -475,7 +525,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         {
             array_push ($groupArray, $dataArray);
         }
-
 
         $view = $args->getSubject()->View();
         $config = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config();
