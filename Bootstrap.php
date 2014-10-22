@@ -225,7 +225,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     private function getTotalCount($request, $optionId)
     {
-        $config = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config();
+        $minInstock = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config()->mininstock;
         $groupIds = array();
         $idArray = Array();
 
@@ -244,7 +244,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
 
         $optionIds = str_replace('|', ',', $optionId);
 
-        // Ticket PT-1553: Append condition - filter articles which do not have sufficient amount instock
+        // Append condition - filter articles which do not have sufficient instock
         $additionalSQL = "(SELECT s_articles.id
                              FROM   s_articles,s_articles_details AS aDetails
                                     JOIN s_article_configurator_option_relations AS acor
@@ -254,8 +254,9 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                                          AND aco.group_id IN ( $groupIds )
                                          AND acor.option_id = aco.id
                              WHERE  aDetails.articleid = s_articles.id
-                                    AND aDetails.active = 1 AND aDetails.instock < {$config->mininstock})";
+                                    AND aDetails.active = 1 AND aDetails.instock < $minInstock)";
 
+        // base query for total article count
         $sql = "SELECT count(DISTINCT ad.articleID) as totalCount
                 FROM `s_article_configurator_option_relations` acor
                 JOIN s_articles_details ad ON acor.article_id = ad.id AND ad.articleID NOT IN $additionalSQL
@@ -280,7 +281,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $optionIdArray = explode  ("|", Shopware()->System()->_GET['oid']);
         $optionIdArray = array_map('intval',$optionIdArray);
         $optionIDs = implode (",", $optionIdArray);
-        $config = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config();
+        $minInstock = Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config()->mininstock;
         if ($optionIDs != "")
         {
               $sqlTmp = "
@@ -324,13 +325,13 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
                         . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1) ";
 
                 $whereSQL .= " AND a.id NOT IN (SELECT s_articles.id from s_articles, s_articles_details AS aDetails "
-                    . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock < {$config->mininstock}) ";
+                    . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock < $minInstock) ";
             }
 
             // Match SW 4.1 as well as SW 408 and before
            $sql = preg_replace("#ON aTax.id ?= ?a.taxID#", $newSQL, $sql);
 
-            // Ticket PT-1553: Append WHERE condition - filter articles which do not have sufficient amount instock
+            // append WHERE condition: filter articles which do not have sufficient  instock
             $search = "/ WHERE ag.articleID IS NULL\s*AND a.active=1/";
             if (preg_match($search, $sql) ) {
               $replace =  "WHERE ag.articleID IS NULL AND a.active=1" . $whereSQL;
