@@ -1,11 +1,28 @@
 {
+    "label": {
+        "de": "Shopware Import/Export",
+        "en": "Shopware Import/Export"
+    },
+    "copyright": "(c) by Shopware AG",
+    "license": "proprietary",
+    "link": "http://store.shopware.com",
+    "author": "Shopware AG",
+
     "currentVersion": "1.0.4",
 
-    "changelogs": {
-        "1.0.1": "Fixes number of total pages shown; Stops filters from being lost when changing pages",
-        "1.0.2": "Fix pagination issues",
-        "1.0.3": "Fixes problems with supplier listing",
-        "1.0.4": "Fixes issue with articles being shown in variant filter result although their instock value was zero"
+    "changelog": {
+        "de": {
+            "1.0.1": "Korrektur: Paginierung; Korrektur: Behalte Filter bei Paginierung bei",
+            "1.0.2": "Korrektur: Paginierung",
+            "1.0.3": "Korrektur: Herstellerlisting",
+            "1.0.4": "Korrektur: Keine Anzeige nicht-lieferbarer Artikel"
+        },
+        "en": {
+            "1.0.1": "Fixes number of total pages shown; Stops filters from being lost when changing pages",
+            "1.0.2": "Fix pagination issues",
+            "1.0.3": "Fixes problems with supplier listing",
+            "1.0.4": "Fixes issue with articles being shown in variant filter result although their instock value was zero"
+        }
     },
 
     "compatibility": {
