@@ -532,6 +532,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         $view->GroupArray = $groupArray;
         $view->BaseURL = $args->getSubject()->Request()->getBaseUrl() . $args->getSubject()->Request()->getPathInfo();
         $this->Application()->Template()->addTemplateDir ($this->Path() . 'views/');
-        $view->extendsTemplate("frontend/index.tpl");
+        $view->extendsTemplate("frontend/plugins/SwagVariantFilter/index.tpl");
     }
 }
