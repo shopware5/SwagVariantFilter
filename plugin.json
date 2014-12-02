@@ -16,7 +16,7 @@
             "1.0.2": "Korrektur: Paginierung",
             "1.0.3": "Korrektur: Herstellerlisting",
             "1.0.4": "Korrektur: Keine Anzeige nicht-lieferbarer Artikel",
-            "1.0.5": "Korrektur: Restrukturierung der Ordnerhierarchie;Hinzugefügt: Snippets;Filter heading as a span tag;"
+            "1.0.5": "Korrektur: Restrukturierung der Ordnerhierarchie;Hinzugefügt: Snippets;Filterüberschrift als span-Tag;"
         },
         "en": {
             "1.0.1": "Fixes number of total pages shown; Stops filters from being lost when changing pages",
