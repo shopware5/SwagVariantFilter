@@ -5,7 +5,7 @@
 
 {block name='frontend_listing_right_filter_properties' append}
 <div class="filter_properties">
-    <h2 class="headingbox_nobg">{s namespace="frontend/SwagVariantFilter/main" name='frontend/SwagVariantFilter/FilterHeadlineVariants'}{/s}</h2>
+    <span class="headingbox_nobg filter-heading">{s namespace="frontend/SwagVariantFilter/main" name='frontend/SwagVariantFilter/FilterHeadlineVariants'}{/s}</span>
     <div class="supplier_filter">
     {foreach $GroupArray AS $Group}
         <div>{$Group.GroupName} <span class="expandcollapse">+</span></div>
