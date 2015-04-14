@@ -1,10 +1,10 @@
 <?php
 namespace Shopware\SwagVariantFilter\Components;
 
-use Shopware\SwagVariantFilter\Components\LegacyFilter\DatabaseAdapter;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterGroup;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\OptionHelper;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
+use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
+use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
+use Shopware\SwagVariantFilter\Components\Common\OptionHelper;
+use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
 
 /**
  * Class LegacyFilter
@@ -43,7 +43,7 @@ class LegacyFilterService
     /**
      * @var int
      */
-    private $requestedCategoryId;
+    private $requestedCategoryIds;
 
     /**
      * Expects list of active category id's
@@ -58,17 +58,17 @@ class LegacyFilterService
     }
 
     /**
-     * @todo have a better idea, maybe split opbjects?
+     * @todo have a better idea, maybe split objects?
      * @param $requestedCategoryId
      * @return $this
      */
-    public function setUp($requestedCategoryId)
+    public function setUp($requestedCategoryIds)
     {
-        if (!$requestedCategoryId) {
+        if (!$requestedCategoryIds) {
             throw new \InvalidArgumentException('Missing required param "$requestedCategoryId"');
         }
 
-        $this->requestedCategoryId = $requestedCategoryId;
+        $this->requestedCategoryIds = $requestedCategoryIds;
 
         return $this;
     }
@@ -149,11 +149,11 @@ class LegacyFilterService
 
     /**
      * @param $label
-     * @return FilterGroup
+     * @return FilterGroupAbstract
      */
     private function createCondition($id, $label)
     {
-        return new FilterGroup($this->requestHelper, $id, $label);
+        return new FilterGroupAbstract($this->requestHelper, $id, $label);
     }
 
     /**

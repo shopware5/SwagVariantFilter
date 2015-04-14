@@ -1,7 +1,8 @@
 <?php
-namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
+namespace Shopware\SwagVariantFilter\Components\Common;
 
 use Doctrine\DBAL\Driver\PDOStatement;
+use Doctrine\DBAL\Portability\Connection;
 
 /**
  * Class DatabaseAdapter
@@ -20,31 +21,30 @@ class DatabaseAdapter
      */
     protected $subCategories = array();
 
+    private function getConfigurationOptionQueryBuilder()
+    {
+        return Shopware()->Models()->getDBALQueryBuilder()
+            ->select('gr.name AS group_name, gr.id AS group_id, opt.name AS option_name, opt.id AS option_id')
+            ->from('s_article_configurator_options', 'opt')
+            ->innerJoin('opt', 's_article_configurator_groups', 'gr', 'opt.group_id = gr.id')
+            ->innerJoin('gr', 's_article_configurator_option_relations', 'rel', 'rel.option_id = opt.id')
+            ->groupBy('opt.id, opt.name, gr.id, gr.name ')
+            ->orderBy('gr.id, opt.name');
+    }
+
     /**
      * @todo there was a optional subselect, but I could not detrmine any use for this, so it's gone now!
      *
      * @param array $subCategories
      * @return mixed
      */
-    public function getConfigurationOptions(array $subCategories)
+    public function getConfigurationOptionsFromCategoryIds(array $subCategories)
     {
-        //@todo potentially unsafe
-        $whereInExpr = implode(',', $subCategories);
-
-        if (!$whereInExpr) {
-            throw new \InvalidArgumentException('No categories selected');
-        }
-
-        $builder = Shopware()->Models()->getDBALQueryBuilder()
-            ->select('gr.name AS group_name, gr.id AS group_id, opt.name AS option_name, opt.id AS option_id')
-            ->from('s_article_configurator_options', 'opt')
-            ->innerJoin('opt', 's_article_configurator_groups', 'gr', 'opt.group_id = gr.id')
-            ->innerJoin('gr', 's_article_configurator_option_relations', 'rel', 'rel.option_id = opt.id')
+        $builder = $this->getConfigurationOptionQueryBuilder()
             ->innerJoin('rel', 's_articles_details', 'det', 'det.id = rel.article_id')
             ->innerJoin('det', 's_articles_categories', 'cat', 'cat.articleID = det.articleID')
-            ->where('cat.categoryID IN (' . $whereInExpr . ')')
-            ->groupBy('opt.id, opt.name, gr.id, gr.name ')
-            ->orderBy('gr.id, opt.name');
+            ->where('cat.categoryID IN (:subcategoryIds)')
+            ->setParameters('subcategories', $subCategories, Connection::PARAM_INT_ARRAY);
 
 //
 //        if ($optionIds != '') {
@@ -68,6 +68,22 @@ class DatabaseAdapter
     }
 
     /**
+     * Generates raw data
+     *
+     * @param array $groupIds
+     * @return mixed
+     */
+    public function getConfigurationOptionsFromGroupIds(array $groupIds)
+    {
+        $builder = $this->getConfigurationOptionQueryBuilder()
+            ->where('gr.id IN (:groupIds)')
+            ->setParameter(':groupIds', $groupIds, Connection::PARAM_INT_ARRAY);
+
+        return $builder->execute()
+            ->fetchAll();
+    }
+
+    /**
      * @param $parentCatId
      * @return string
      */
@@ -79,7 +95,7 @@ class DatabaseAdapter
     }
 
     /**
-     * Returns a flat array with the category and the result itsel
+     * Returns a flat array with the subcategories and the parent itself
      *
      * The result is not sorted!
      *

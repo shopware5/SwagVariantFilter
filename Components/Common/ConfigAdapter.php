@@ -1,14 +1,14 @@
 <?php
-namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
+namespace Shopware\SwagVariantFilter\Components\Common;
 
 /**
- * Class OptionHelper
+ * Class ConfigAdapter
  *
  * Provides methods on config options.
  *
- * @package Shopware\SwagVariantFilter\Components\LegacyFilter
+ * @package Shopware\SwagVariantFilter\Components\Common
  */
-class OptionHelper
+class ConfigAdapter
 {
 
     /**
@@ -27,7 +27,7 @@ class OptionHelper
      */
     public function __construct(\Enlight_Config $config)
     {
-        $this->minStock = $config->mininstock;
+        $this->minStock = (int) $config->mininstock;
 
         $rawCategoryIds = $config->categoryids;
         if (!$rawCategoryIds) {

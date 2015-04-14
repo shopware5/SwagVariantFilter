@@ -2,11 +2,11 @@
 namespace Shopware\SwagVariantFilter\Components;
 
 use Doctrine\DBAL\Driver\PDOStatement;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\DatabaseAdapter;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterGroup;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterOption;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\OptionHelper;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
+use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
+use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
+use Shopware\SwagVariantFilter\Components\Common\FilterOptionAbstract;
+use Shopware\SwagVariantFilter\Components\Common\OptionHelper;
+use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
 
 /**
  * Class LegacyResponseExtender
@@ -97,7 +97,7 @@ class LegacyResponseExtender
     {
         $tmpSQL = '';
 
-        /** @var FilterGroup $group */
+        /** @var FilterGroupAbstract $group */
         foreach ($this->requireFilterGroups() as $group) {
             if (!$group->hasActiveOptions()) {
                 continue;
@@ -106,7 +106,7 @@ class LegacyResponseExtender
             $groupId = $group->getId();
             $optionIds = array();
 
-            /** @var FilterOption $option */
+            /** @var FilterOptionAbstract $option */
             foreach ($group->getOptions() as $option) {
                 if (!$option->isActive()) {
                     continue;
@@ -217,7 +217,7 @@ class LegacyResponseExtender
     {
         $groupIds = array();
 
-        /** @var FilterGroup $group */
+        /** @var FilterGroupAbstract $group */
         foreach ($this->filterGroups as $group) {
             $groupIds[] = $group->getId();
         }
@@ -246,7 +246,7 @@ class LegacyResponseExtender
             ->where($builder->expr()->in('option_id', $this->requestHelper->getActiveOptions()))
             ->execute();
 
-        return (int)$stmt->fetch(\PDO::FETCH_COLUMN, 0);
+        return (int) $stmt->fetch(\PDO::FETCH_COLUMN, 0);
 
     }
 }

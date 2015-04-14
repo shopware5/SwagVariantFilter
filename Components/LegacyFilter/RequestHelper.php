@@ -1,54 +1,22 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jpietrzyk
- * Date: 10.04.15
- * Time: 12:05
- */
+
 
 namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
 
-/**
- * Class UrlGenerator
- *
- * Binding Request + url handling
- *
- * @package Shopware\SwagVariantFilter\Components\LegacyFilter
- */
-class RequestHelper
-{
 
+use Shopware\SwagVariantFilter\Components\Common\RequestAdapter;
+
+class RequestHelper extends RequestAdapter
+{
     /**
      * @var string
      */
     protected $baseUrl;
 
-    /**
-     * @var array
-     */
-    private $activeOptions = array();
-
-    /**
-     * @param \Enlight_Controller_Request_Request $request
-     */
     public function __construct(\Enlight_Controller_Request_Request $request)
     {
+        parent::__construct($request);
         $this->baseUrl = $request->getBaseUrl() . $request->getPathInfo();
-
-        $activeOptions = $request->getParam('oid');
-        if (!$activeOptions) {
-            return;
-        }
-
-        $this->activeOptions = explode('|', $activeOptions);
-    }
-
-    /**
-     * @return array
-     */
-    public function getActiveOptions()
-    {
-        return $this->activeOptions;
     }
 
     /**
@@ -59,7 +27,7 @@ class RequestHelper
     {
         return $this->getUrlPRefix() . $this->formatOptions(
             array_merge(
-                $this->activeOptions,
+                $this->getRequestedVariantIds(),
                 array($optionId)
             )
         );
@@ -71,7 +39,7 @@ class RequestHelper
      */
     public function getRemoveUrl($optionId)
     {
-        $activeOptions = $this->activeOptions;
+        $activeOptions = $this->getRequestedVariantIds();
 
         if (false !== ($index = array_search($optionId, $activeOptions))) {
             unset($activeOptions[$index]);
@@ -108,7 +76,7 @@ class RequestHelper
      */
     public function getPerPage($default = 12)
     {
-        return (int)Shopware()->Front()->Request()->getParam('sPerPage', $default);
+        return (int) Shopware()->Front()->Request()->getParam('sPerPage', $default);
     }
 
     /**
@@ -117,6 +85,6 @@ class RequestHelper
      */
     public function getRawActiveOptionIds($default = '')
     {
-        return (string)Shopware()->Front()->Request()->getParam('oid', $default);
+        return (string) Shopware()->Front()->Request()->getParam('oid', $default);
     }
 }

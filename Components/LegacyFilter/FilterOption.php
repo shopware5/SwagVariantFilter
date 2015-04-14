@@ -1,64 +1,31 @@
 <?php
-namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
+namespace Shopoware\SwagVariantFilter\Components\LegacyFilter;
+
+use \Shopware\SwagVariantFilter\Components\Common\FilterOptionAbstract as AbstractFilterOption;
+use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
 
 /**
  * Class FilterOption
- *
- * A
- *
- * @package Shopware\SwagVariantFilter\Components\LegacyFilter
+ * @package Shopoware\SwagVariantFilter\Components\LegacyFilter
  */
-class FilterOption
+class FilterOption extends AbstractFilterOption
 {
-
-    /**
-     * @var bool
-     */
-    protected $active;
-
-    /**
-     * @var string
-     */
-    protected $label;
-
-    /**
-     * @var int
-     */
-    protected $id;
 
     /**
      * @var RequestHelper
      */
-    protected $requestHelper;
+    private $requestHelper;
 
     /**
      * @param RequestHelper $requestHelper
-     * @param $id
-     * @param $label
+     * @param string $id
+     * @param bool $label
      * @param bool $active
      */
     public function __construct(RequestHelper $requestHelper, $id, $label, $active = false)
     {
+        parent::__construct($id, $label, $active);
         $this->requestHelper = $requestHelper;
-        $this->label = $label;
-        $this->id = $id;
-        $this->active = $active;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isActive()
-    {
-        return $this->active;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLabel()
-    {
-        return $this->label;
     }
 
     /**
@@ -66,7 +33,7 @@ class FilterOption
      */
     public function getAddUrl()
     {
-        return $this->requestHelper->getAddUrl($this->id);
+        return $this->requestHelper->getAddUrl($this->getId());
     }
 
     /**
@@ -74,14 +41,6 @@ class FilterOption
      */
     public function getRemoveUrl()
     {
-        return $this->requestHelper->getRemoveUrl($this->id);
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
+        return $this->requestHelper->getRemoveUrl($this->getId());
     }
 }

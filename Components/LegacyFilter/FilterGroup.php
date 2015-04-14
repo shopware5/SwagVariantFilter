@@ -1,98 +1,34 @@
 <?php
-
 namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
 
+use Shopoware\SwagVariantFilter\Components\LegacyFilter\FilterOption;
+use \Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
+use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
+
 /**
- * Class FilterItem
- *
- * Representation of a single filter group, containing many options
- *
- * @package Shopware\SwagVariantFilter\LegacyFilter
+ * Class FilterGroup
+ * @package Shopware\SwagVariantFilter\Components\LegacyFilter
  */
-class FilterGroup
+class FilterGroup extends FilterGroupAbstract
 {
-
-    /**
-     * @var string
-     */
-    private $label;
-
-    /**
-     * @var int
-     */
-    private $id;
-
-    /**
-     * @var array
-     */
-    private $options = array();
-
-    private $hasActiveOption = false;
 
     /**
      * @var RequestHelper
      */
     private $requestHelper;
 
-    /**
-     * @param RequestHelper $requestHelper
-     * @param int $id
-     * @param string $label
-     */
     public function __construct(RequestHelper $requestHelper, $id, $label)
     {
+        parent::__construct($id, $label);
         $this->requestHelper = $requestHelper;
-        $this->id = (int)$id;
-        $this->label = (string)$label;
     }
 
     /**
-     * @param $id
-     * @param $value
-     * @param bool $isValid
-     * @return $this
+     * {@inheritdoc}
      */
-    public function addOption($id, $value, $isValid = false)
+    protected function createOption($id, $label, $isActive)
     {
-        $this->options[$id] = new FilterOption($this->requestHelper, $id, $value, $isValid);
-
-        if ($isValid) {
-            $this->hasActiveOption = true;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLabel()
-    {
-        return $this->label;
-    }
-
-    /**
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasActiveOptions()
-    {
-        return $this->hasActiveOption;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
+        return new FilterOption($this->requestHelper, $id, $label, $isActive);
     }
 
     /**
@@ -102,6 +38,4 @@ class FilterGroup
     {
         return $this->requestHelper->getBaseUrl();
     }
-
-
 }

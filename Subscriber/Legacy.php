@@ -19,7 +19,7 @@ class Legacy implements SubscriberInterface
 {
 
     /**
-     * {inheritdoc}
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {

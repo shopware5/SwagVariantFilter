@@ -33,7 +33,6 @@
 /**
  * Shopware SwagVariantFilter Plugin
  *
- * todo@all: Documentation
  */
 class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
@@ -65,12 +64,29 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     /**
      * Init Services & Subscribers
      *
-     * @param Enlight_Event_EventArgs $args
+     * @param Enlight_Controller_ActionEventArgs $args
      */
-    public function onStartDispatch(Enlight_Event_EventArgs $args)
+    public function onStartDispatch(Enlight_Controller_ActionEventArgs $args)
     {
-        $requestHelper = new \Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper($args->getRequest());
-        $optionHelper = new \Shopware\SwagVariantFilter\Components\LegacyFilter\OptionHelper(Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config());
+        $this->registerDebugErrorHandler();
+
+        if (!$this->assertVersionGreaterThen('5')) {
+            $this->initializeLegacy();
+            return;
+        }
+
+
+        $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Filter());
+        $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\ServiceContainer(
+            Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config(),
+            Shopware()->Front()->Request()
+        ));
+    }
+
+    private function initializeLegacy()
+    {
+        $requestHelper = new \Shopware\SwagVariantFilter\Components\Common\RequestHelper($args->getRequest());
+        $optionHelper = new \Shopware\SwagVariantFilter\Components\Common\OptionHelper(Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config());
         Shopware()->Container()->set(
             'SwagVariantLegacyFilter',
             new Shopware\SwagVariantFilter\Components\LegacyFilterService(
@@ -88,8 +104,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         );
 
         $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Legacy());
-
-        $this->registerDebugErrorHandler();
     }
 
     public function registerDebugErrorHandler()
@@ -107,11 +121,12 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         );
 
         set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($errorMap) {
-            if (strpos($errfile, '.tpl') !== false || strpos($errstr, '.tpl') !== false) {
+            if (strpos($errfile, __DIR__) === false) {
                 return;
             }
 
             $message = print_r([
+                'Date' => Zend_Date::now()->get(Zend_Date::DATETIME_SHORT),
                 'Type' => $errorMap[$errno],
                 'Message' => $errstr,
                 'File' => $errfile,
@@ -123,7 +138,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             }
 
 
-            file_put_contents('/var/www/master/error.log', $message, FILE_APPEND);
+            file_put_contents('/var/www/next/error.log', $message, FILE_APPEND);
         });
     }
 
