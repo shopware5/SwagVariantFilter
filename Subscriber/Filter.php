@@ -53,11 +53,10 @@ class Filter implements SubscriberInterface
     }
 
     /**
-     * "What happens here?"
      *
-     * * Test if condition is accessible
-     * * Test if request contains filter-data
-     * * set minstock from config (-Adapter)
+     * # Test if condition is accessible
+     * # Test if request contains filter-data
+     * # set minstock from config (-Adapter)
      *
      *
      * @param \Enlight_Event_EventArgs $args
