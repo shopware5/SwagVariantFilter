@@ -38,7 +38,7 @@ class DatabaseAdapter
                 'rel.option_id = opt.id'
             )
             ->groupBy('opt.id, opt.name, gr.id, gr.name ')
-            ->orderBy('gr.id, opt.position');
+            ->orderBy('gr.position, opt.position');
     }
 
     /**
