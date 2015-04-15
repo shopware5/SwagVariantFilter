@@ -26,10 +26,19 @@ class DatabaseAdapter
         return Shopware()->Models()->getDBALQueryBuilder()
             ->select('gr.name AS group_name, gr.id AS group_id, opt.name AS option_name, opt.id AS option_id')
             ->from('s_article_configurator_options', 'opt')
-            ->innerJoin('opt', 's_article_configurator_groups', 'gr', 'opt.group_id = gr.id')
-            ->innerJoin('gr', 's_article_configurator_option_relations', 'rel', 'rel.option_id = opt.id')
+            ->innerJoin(
+                'opt',
+                's_article_configurator_groups',
+                'gr',
+                'opt.group_id = gr.id')
+            ->innerJoin(
+                'gr',
+                's_article_configurator_option_relations',
+                'rel',
+                'rel.option_id = opt.id'
+            )
             ->groupBy('opt.id, opt.name, gr.id, gr.name ')
-            ->orderBy('gr.id, opt.name');
+            ->orderBy('gr.id, opt.position');
     }
 
     /**
@@ -41,10 +50,23 @@ class DatabaseAdapter
     public function getConfigurationOptionsFromCategoryIds(array $subCategories)
     {
         $builder = $this->getConfigurationOptionQueryBuilder()
-            ->innerJoin('rel', 's_articles_details', 'det', 'det.id = rel.article_id')
-            ->innerJoin('det', 's_articles_categories', 'cat', 'cat.articleID = det.articleID')
+            ->innerJoin(
+                'rel',
+                's_articles_details',
+                'det',
+                'det.id = rel.article_id'
+            )
+            ->innerJoin(
+                'det',
+                's_articles_categories',
+                'cat',
+                'cat.articleID = det.articleID'
+            )
             ->where('cat.categoryID IN (:subcategoryIds)')
-            ->setParameter(':subcategoryIds', $subCategories, Connection::PARAM_INT_ARRAY);
+            ->setParameter(
+                ':subcategoryIds',
+                $subCategories, Connection::PARAM_INT_ARRAY
+            );
 
 //
 //        if ($optionIds != '') {
