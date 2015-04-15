@@ -68,23 +68,6 @@ class DatabaseAdapter
                 $subCategories, Connection::PARAM_INT_ARRAY
             );
 
-//
-//        if ($optionIds != '') {
-//            $additionSQL = "AND s_articles_categories.articleID IN (
-//                SELECT DISTINCT
-//                  s_articles_details.articleID
-//                  FROM
-//                  s_articles_details
-//                  JOIN s_article_configurator_option_relations
-//                    ON s_article_configurator_option_relations.article_id = s_articles_details.id
-//                    AND s_article_configurator_option_relations.option_id IN ($optionIds)
-//                  JOIN s_articles_categories
-//                    ON s_articles_details.articleID=s_articles_categories.articleID
-//                    AND s_articles_categories.categoryID IN ($subCategoriesTxt)
-//                )";
-//        }
-
-
         return $builder->execute()
             ->fetchAll();
     }
