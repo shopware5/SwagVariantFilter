@@ -4,7 +4,7 @@
 
 {block name="frontend_listing_right_filter_properties" append}
 <div class="filter_properties">
-    <span class="headingbox_nobg filter-heading">{s namespace="frontend/swagvariantfilter/main" name='FilterHeadlineVariants'}{/s}</span>
+    <span class="headingbox_nobg filter-heading">{s namespace="frontend/swag_variant_filter/main" name='FilterHeadlineVariants'}{/s}</span>
     <div class="supplier_filter">
     {foreach $swagVariantFilterConditions AS $filterItem}
         <div>{$filterItem->getLabel()} <span class="expandcollapse">+</span></div>
@@ -24,8 +24,8 @@
 
                 {if $filterItem->hasActiveOptions()}
                     <li class="close">
-                        <a href="{$filterItem->getBaseUrl()}?p=1" title="{s namespace="frontend/swagvariantfilter/main" name='ListingFilterBoxShowAll'}{/s}">
-                            {s namespace="frontend/swagvariantfilter/main" name='ListingFilterBoxShowAll'}{/s}
+                        <a href="{$filterItem->getBaseUrl()}?p=1" title="{s namespace="frontend/swag_variant_filter/main" name='ListingFilterBoxShowAll'}{/s}">
+                            {s namespace="frontend/swag_variant_filter/main" name='ListingFilterBoxShowAll'}{/s}
                         </a>
                     </li>
                 {/if}

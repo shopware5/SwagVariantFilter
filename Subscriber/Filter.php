@@ -89,7 +89,7 @@ class Filter implements SubscriberInterface
         return new ProductVariantFacetHandler(
             Shopware()->Container()->get('SwagVariantFilterProductVariantService'),
             Shopware()->Container()->get('shopware_searchdbal.dbal_query_builder_factory'),
-            Shopware()->Snippets()->getNamespace('frontend/SwagVariantFilter/main')
+            Shopware()->Snippets()->getNamespace('frontend/swag_variant_filter/main')
         );
     }
 
