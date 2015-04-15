@@ -75,7 +75,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             return;
         }
 
-
         $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Filter());
         $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\ServiceContainer(
             Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config(),

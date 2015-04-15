@@ -84,7 +84,8 @@ class ServiceContainer implements SubscriberInterface
             ),
             $this->createTranlate(
                 $dbAdapter,
-                Shopware()->Shop()->getLocale()->getId()
+                Shopware()->Shop()->getLocale()->getId(),
+                Shopware()->Shop()->getFallback()->getLocale()->getId()
             )
         );
     }
@@ -121,7 +122,7 @@ class ServiceContainer implements SubscriberInterface
      * @param $localeId
      * @return ConfiguratorTranslate
      */
-    private function createTranlate(DatabaseAdapter $dbAdapter, $localeId) {
-        return new ConfiguratorTranslate($dbAdapter, $localeId);
+    private function createTranlate(DatabaseAdapter $dbAdapter, $localeId, $fallbackLocaleId) {
+        return new ConfiguratorTranslate($dbAdapter, $localeId, $fallbackLocaleId);
     }
 }

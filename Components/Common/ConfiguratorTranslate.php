@@ -30,12 +30,27 @@ class ConfiguratorTranslate {
     private $localeId;
 
     /**
+     * @var int
+     */
+    private $fallbackLocaleId;
+
+    /**
      * @param DatabaseAdapter $dbAdapter
      * @param int $localeId
+     * @param $fallbackLocaleId
      */
-    public function __construct(DatabaseAdapter $dbAdapter, $localeId) {
+    public function __construct(DatabaseAdapter $dbAdapter, $localeId, $fallbackLocaleId) {
+        if(!$localeId) {
+            throw new \InvalidArgumentException('Missing required param $localeId');
+        }
+
+        if(!$fallbackLocaleId) {
+            throw new \InvalidArgumentException('Missing required param $fallbackLocaleId');
+        }
+
         $this->dbAdapter = $dbAdapter;
         $this->localeId = $localeId;
+        $this->fallbackLocaleId = $fallbackLocaleId;
     }
 
     /**
@@ -103,7 +118,9 @@ class ConfiguratorTranslate {
      * @throws \Exception
      */
     private function loadTranslations() {
-        $rawTranslateData = $this->dbAdapter->getConfiguratorTranslations($this->localeId);
+
+        // all keys may be multiple times in result set, the first is allways the most important
+        $rawTranslateData = $this->dbAdapter->getConfiguratorTranslations($this->localeId, $this->fallbackLocaleId);
 
         foreach($rawTranslateData as $translation) {
             switch($translation['objecttype']) {
@@ -124,6 +141,11 @@ class ConfiguratorTranslate {
             $data = unserialize($translation['objectdata']);
 
             if(!isset($data['name']) || !$data['name']) {
+                continue;
+            }
+
+            //remove duplicates
+            if(isset($currentGroup[$translation['objectkey']])) {
                 continue;
             }
 

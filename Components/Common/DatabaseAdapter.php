@@ -136,9 +136,14 @@ class DatabaseAdapter
      * @param $language
      * @return \Doctrine\DBAL\Query\QueryBuilder
      */
-    public function getConfiguratorTranslations($languageId) {
+    public function getConfiguratorTranslations($languageId, $fallbackLanguageId) {
         if(!$languageId) {
             throw new \InvalidArgumentException('Missing required argument $languageId');
+        }
+
+        $order = 'ASC';
+        if($languageId > $fallbackLanguageId) {
+            $order = 'DESC';
         }
 
         $statement = Shopware()->Models()->getDBALQueryBuilder()
@@ -146,10 +151,11 @@ class DatabaseAdapter
             ->from('s_core_translations', 'translate')
             ->where(
                 'translate.objecttype IN (:types)
-                AND translate.objectlanguage = :language'
+                AND translate.objectlanguage IN (:languages)'
             )
-            ->setParameter('types', array('configuratoroption', 'configuratorgroup'), Connection::PARAM_STR_ARRAY)
-            ->setParameter('language', $languageId)
+            ->orderBy('translate.objectlanguage', $order)
+            ->setParameter(':types', array('configuratoroption', 'configuratorgroup'), Connection::PARAM_STR_ARRAY)
+            ->setParameter(':languages', array($languageId, $fallbackLanguageId), Connection::PARAM_INT_ARRAY)
             ->execute();
 
         $statement->setFetchMode(\Pdo::FETCH_ASSOC);
