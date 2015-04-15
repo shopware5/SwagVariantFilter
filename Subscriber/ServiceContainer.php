@@ -9,7 +9,7 @@ use Shopware\SwagVariantFilter\Components\Common\ConfigAdapter;
 use Shopware\SwagVariantFilter\Components\Common\RequestAdapter;
 use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
 use Shopware\SwagVariantFilter\Components\ProductVariantService;
-use Shopware\SwagVariantFilter\Components\Common\FilterDataByGroupFactory;
+use Shopware\SwagVariantFilter\Components\Filter\FilterDataByGroupFactory;
 
 /**
  * Class ServiceContainer

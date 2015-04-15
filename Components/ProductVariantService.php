@@ -5,7 +5,7 @@ namespace Shopware\SwagVariantFilter\Components;
 
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
 use Shopware\SwagVariantFilter\Components\Common\ServiceAbstract;
-use Shopware\SwagVariantFilter\Components\Common\FilterGroup;
+use Shopware\SwagVariantFilter\Components\Filter\FilterGroup;
 use Shopware\SwagVariantFilter\Components\Common\FilterDataByGroupFactory;
 
 /**

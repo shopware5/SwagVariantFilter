@@ -1,10 +1,10 @@
 <?php
 
-namespace Shopware\SwagVariantFilter\Components\Common;
+namespace Shopware\SwagVariantFilter\Components\Filter;
 
 
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
-use Shopware\SwagVariantFilter\Components\Common\FilterOption;
+use Shopware\SwagVariantFilter\Components\Filter\FilterOption;
 
 class FilterGroup extends FilterGroupAbstract
 {
