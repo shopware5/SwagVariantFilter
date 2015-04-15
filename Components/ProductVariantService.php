@@ -7,7 +7,7 @@ use Shopware\SwagVariantFilter\Components\Common\ConfiguratorTranslate;
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
 use Shopware\SwagVariantFilter\Components\Common\ServiceAbstract;
 use Shopware\SwagVariantFilter\Components\Filter\FilterGroup;
-use Shopware\SwagVariantFilter\Components\Common\FilterDataByGroupFactory;
+use Shopware\SwagVariantFilter\Components\Filter\FilterDataByGroupFactory;
 
 /**
  * Class ProductVariantService
