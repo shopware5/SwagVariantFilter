@@ -148,4 +148,29 @@ class DatabaseAdapter
 
         return $this->subCategories[$parentCatId];
     }
+
+    /**
+     * @param $language
+     * @return \Doctrine\DBAL\Query\QueryBuilder
+     */
+    public function getConfiguratorTranslations($languageId) {
+        if(!$languageId) {
+            throw new \InvalidArgumentException('Missing required argument $languageId');
+        }
+
+        $statement = Shopware()->Models()->getDBALQueryBuilder()
+            ->select('translate.objecttype, translate.objectdata, translate.objectkey')
+            ->from('s_core_translations', 'translate')
+            ->where(
+                'translate.objecttype IN (:types)
+                AND translate.objectlanguage = :language'
+            )
+            ->setParameter('types', array('configuratoroption', 'configuratorgroup'), Connection::PARAM_STR_ARRAY)
+            ->setParameter('language', $languageId)
+            ->execute();
+
+        $statement->setFetchMode(\Pdo::FETCH_ASSOC);
+
+        return $statement->fetchAll();
+    }
 }

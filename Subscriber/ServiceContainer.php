@@ -6,6 +6,7 @@ namespace Shopware\SwagVariantFilter\Subscriber;
 use Enlight\Event\SubscriberInterface;
 use Shopware\SwagVariantFilter\Components\AccessibilityService;
 use Shopware\SwagVariantFilter\Components\Common\ConfigAdapter;
+use Shopware\SwagVariantFilter\Components\Common\ConfiguratorTranslate;
 use Shopware\SwagVariantFilter\Components\Common\RequestAdapter;
 use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
 use Shopware\SwagVariantFilter\Components\ProductVariantService;
@@ -20,7 +21,6 @@ use Shopware\SwagVariantFilter\Components\Filter\FilterDataByGroupFactory;
  */
 class ServiceContainer implements SubscriberInterface
 {
-
     /**
      * @var \Enlight_Config
      */
@@ -74,9 +74,15 @@ class ServiceContainer implements SubscriberInterface
      */
     public function getFilterService()
     {
+        $dbAdapter = $this->createDbAdapater();
+
         return new ProductVariantService(
             $this->createFilterConditionFactory(
-                $this->createDbAdapater()
+                $dbAdapter
+            ),
+            $this->createTranlate(
+                $dbAdapter,
+                Shopware()->Shop()->getLocale()->getId()
             )
         );
     }
@@ -106,5 +112,14 @@ class ServiceContainer implements SubscriberInterface
     private function createDbAdapater()
     {
         return new DatabaseAdapter();
+    }
+
+    /**
+     * @param DatabaseAdapter $dbAdapter
+     * @param $localeId
+     * @return ConfiguratorTranslate
+     */
+    private function createTranlate(DatabaseAdapter $dbAdapter, $localeId) {
+        return new ConfiguratorTranslate($dbAdapter, $localeId);
     }
 }

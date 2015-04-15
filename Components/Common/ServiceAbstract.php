@@ -50,14 +50,21 @@ abstract class ServiceAbstract
             $isActive = false;
 
             if (!isset($ret[$groupName])) {
-                $ret[$groupName] = $this->createFilterGroup($data['group_id'], $groupName);
+                $ret[$groupName] = $this->createFilterGroup(
+                    $data['group_id'],
+                    $this->getTranslate()->getGroupLabel($data['group_id'], $groupName)
+                );
             }
 
             if (in_array($data['option_id'], $activeOptionIds)) {
                 $isActive = true;
             }
 
-            $ret[$groupName]->addOption($data['option_id'], $data['option_name'], $isActive);
+            $ret[$groupName]->addOption(
+                $data['option_id'],
+                $this->getTranslate()->getOptionLabel($data['option_id'], $data['option_name']),
+                $isActive
+            );
         }
 
         return $ret;
@@ -68,4 +75,9 @@ abstract class ServiceAbstract
      * @return FilterGroupAbstract
      */
     abstract protected function createFilterGroup($id, $label);
+
+    /**
+     * @return ConfiguratorTranslate
+     */
+    abstract protected function getTranslate();
 }

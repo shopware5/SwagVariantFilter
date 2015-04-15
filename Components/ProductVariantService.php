@@ -3,6 +3,7 @@
 namespace Shopware\SwagVariantFilter\Components;
 
 
+use Shopware\SwagVariantFilter\Components\Common\ConfiguratorTranslate;
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
 use Shopware\SwagVariantFilter\Components\Common\ServiceAbstract;
 use Shopware\SwagVariantFilter\Components\Filter\FilterGroup;
@@ -19,9 +20,19 @@ class ProductVariantService extends ServiceAbstract
      */
     private $factory;
 
-    public function __construct(FilterDataByGroupFactory $factory)
+    /**
+     * @var ConfiguratorTranslate
+     */
+    private $translate;
+
+    /**
+     * @param FilterDataByGroupFactory $factory
+     * @param ConfiguratorTranslate $translate
+     */
+    public function __construct(FilterDataByGroupFactory $factory, ConfiguratorTranslate $translate)
     {
         $this->factory = $factory;
+        $this->translate = $translate;
     }
 
     /**
@@ -40,6 +51,13 @@ class ProductVariantService extends ServiceAbstract
     protected function getDataFactory()
     {
         return $this->factory;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getTranslate() {
+        return $this->translate;
     }
 
 }
