@@ -44,22 +44,11 @@ class LegacyResponseExtender
      * @param RequestHelper $requestHelper
      * @param ConfigAdapter $configAdapter
      */
-    public function __construct(RequestHelper $requestHelper, ConfigAdapter $configAdapter)
+    public function __construct(RequestHelper $requestHelper, ConfigAdapter $configAdapter, DatabaseAdapter $dbAdapter)
     {
         $this->requestHelper = $requestHelper;
         $this->configAdapter = $configAdapter;
-    }
-
-    /**
-     * @return DatabaseAdapter
-     */
-    private function getDatabaseAdapter()
-    {
-        if (!$this->databaseAdapter) {
-            $this->databaseAdapter = new DatabaseAdapter();
-        }
-
-        return $this->databaseAdapter;
+        $this->databaseAdapter = $dbAdapter;
     }
 
     /**
@@ -222,7 +211,7 @@ class LegacyResponseExtender
             $groupIds[] = $group->getId();
         }
 
-        $subCategories = $this->getDatabaseAdapter()->getSubcategories($request->sCategory);
+        $subCategories = $this->databaseAdapter->getSubcategories($request->sCategory);
 
         // Append condition - filter articles which do not have sufficient instock
         $stockQueryBuilder = Shopware()->Models()->getDBALQueryBuilder();

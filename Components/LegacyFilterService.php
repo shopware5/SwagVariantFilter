@@ -3,6 +3,7 @@ namespace Shopware\SwagVariantFilter\Components;
 
 use Shopware\SwagVariantFilter\Components\Common\AccessibilityInterface;
 use Shopware\SwagVariantFilter\Components\Common\ConfigAdapter;
+use Shopware\SwagVariantFilter\Components\Common\ConfiguratorTranslate;
 use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
 use Shopware\SwagVariantFilter\Components\Common\FilterDataFactory;
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
@@ -41,6 +42,16 @@ class LegacyFilterService extends ServiceAbstract implements AccessibilityInterf
     private $optionHelper;
 
     /**
+     * @var ConfiguratorTranslate
+     */
+    private $translate;
+
+    /**
+     * @var DatabaseAdapter
+     */
+    private $dbAdapter;
+
+    /**
      * @var bool
      */
     private $filterAccessible = false;
@@ -51,22 +62,12 @@ class LegacyFilterService extends ServiceAbstract implements AccessibilityInterf
      * @param RequestHelper $requestHelper
      * @param ConfigAdapter $optionHelper
      */
-    public function __construct(RequestHelper $requestHelper, ConfigAdapter $optionHelper)
+    public function __construct(RequestHelper $requestHelper, ConfigAdapter $optionHelper, DatabaseAdapter $dbAdapter, ConfiguratorTranslate $translate)
     {
         $this->requestHelper = $requestHelper;
         $this->optionHelper = $optionHelper;
-    }
-
-    /**
-     * @return DatabaseAdapter
-     */
-    protected function getDatabaseAdpater()
-    {
-        if (!$this->databaseAdapter) {
-            $this->databaseAdapter = new DatabaseAdapter();
-        }
-
-        return $this->databaseAdapter;
+        $this->translate = $translate;
+        $this->dbAdapter = $dbAdapter;
     }
 
     /**
@@ -97,7 +98,7 @@ class LegacyFilterService extends ServiceAbstract implements AccessibilityInterf
      */
     protected function getDataFactory()
     {
-        return new FilterDataByCategoryFactory($this->getDatabaseAdpater());
+        return new FilterDataByCategoryFactory($this->dbAdapter);
     }
 
     /**
@@ -115,5 +116,13 @@ class LegacyFilterService extends ServiceAbstract implements AccessibilityInterf
     public function isValid()
     {
         return $this->filterAccessible;
+    }
+
+    /**
+     * @return ConfiguratorTranslate
+     */
+    protected function getTranslate()
+    {
+        return $this->translate;
     }
 }

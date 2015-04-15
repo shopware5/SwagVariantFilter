@@ -70,10 +70,10 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function onStartDispatch($args)
     {
-        if (!$this->assertVersionGreaterThen('5')) {
+//        if (!$this->assertVersionGreaterThen('5')) {
             $this->initializeLegacy($args);
             return;
-        }
+//        }
 
 
         $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Filter());
@@ -91,26 +91,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     private function initializeLegacy($args)
     {
         $requestHelper = new \Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper($args->getRequest());
-        $configAdapter = new \Shopware\SwagVariantFilter\Components\Common\ConfigAdapter(
-            Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config()
-        );
-
-        Shopware()->Container()->set(
-            'SwagVariantLegacyFilter',
-            new Shopware\SwagVariantFilter\Components\LegacyFilterService(
-                $requestHelper,
-                $configAdapter
-            )
-        );
-
-        Shopware()->Container()->set(
-            'SwagVariantLegacyResponseExtender',
-            new \Shopware\SwagVariantFilter\Components\LegacyResponseExtender(
-                $requestHelper,
-                $configAdapter
-            )
-        );
-
+        $this->Application()->Events()->addSubscriber(new \Shopware\SwagVariantFilter\Subscriber\LegacyServiceContainer($requestHelper));
         $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Legacy($requestHelper));
     }
 
