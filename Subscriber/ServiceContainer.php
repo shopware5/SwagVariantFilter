@@ -62,11 +62,13 @@ class ServiceContainer implements SubscriberInterface
     }
 
     /**
-     * @return ConfigAdapter
+     * @return AccessibilityService
      */
     public function getAccessibilityService()
     {
-        return new AccessibilityService($this->container->get('SwagVariantFilterConfigAdapter'));
+        return new AccessibilityService(
+            $this->container->get('SwagVariantFilterConfigAdapter')
+        );
     }
 
     /**
