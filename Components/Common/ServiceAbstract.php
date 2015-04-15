@@ -11,7 +11,6 @@ namespace Shopware\SwagVariantFilter\Components\Common;
  */
 abstract class ServiceAbstract
 {
-
     /**
      * @var array
      */
@@ -69,6 +68,4 @@ abstract class ServiceAbstract
      * @return FilterGroupAbstract
      */
     abstract protected function createFilterGroup($id, $label);
-
-
 }

@@ -64,14 +64,16 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     /**
      * Init Services & Subscribers
      *
+     * @todo the only way to stay here error free is to omit the typehint, since SW4 and SW5 eill use different EventArgs-classes, add type hint when sw4 code is removed
+     *
      * @param Enlight_Controller_ActionEventArgs $args
      */
-    public function onStartDispatch(Enlight_Controller_ActionEventArgs $args)
+    public function onStartDispatch($args)
     {
         $this->registerDebugErrorHandler();
 
         if (!$this->assertVersionGreaterThen('5')) {
-            $this->initializeLegacy();
+            $this->initializeLegacy($args);
             return;
         }
 
@@ -83,15 +85,23 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         ));
     }
 
-    private function initializeLegacy()
+    /**
+     * Initialize legacy SW4 handlers
+     *
+     * @param $args
+     */
+    private function initializeLegacy($args)
     {
-        $requestHelper = new \Shopware\SwagVariantFilter\Components\Common\RequestHelper($args->getRequest());
-        $optionHelper = new \Shopware\SwagVariantFilter\Components\Common\OptionHelper(Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config());
+        $requestHelper = new \Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper($args->getRequest());
+        $configAdapter = new \Shopware\SwagVariantFilter\Components\Common\ConfigAdapter(
+            Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config()
+        );
+
         Shopware()->Container()->set(
             'SwagVariantLegacyFilter',
             new Shopware\SwagVariantFilter\Components\LegacyFilterService(
                 $requestHelper,
-                $optionHelper
+                $configAdapter
             )
         );
 
@@ -99,11 +109,11 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             'SwagVariantLegacyResponseExtender',
             new \Shopware\SwagVariantFilter\Components\LegacyResponseExtender(
                 $requestHelper,
-                $optionHelper
+                $configAdapter
             )
         );
 
-        $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Legacy());
+        $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Legacy($requestHelper));
     }
 
     public function registerDebugErrorHandler()
@@ -120,25 +130,39 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             E_USER_DEPRECATED => 'E_USER_DEPRECATED',
         );
 
+        register_shutdown_function(function() {
+            restore_error_handler();
+
+            $lastError = error_get_last();
+
+            if(!$lastError) {
+                $message = "\nFinish\n";
+            } else {
+                $message = print_r($lastError, true);
+            }
+
+            file_put_contents(__DIR__ . '/error.log', $message, FILE_APPEND);
+
+        });
+
         set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($errorMap) {
             if (strpos($errfile, __DIR__) === false) {
                 return;
             }
 
-            $message = print_r([
+            $message = print_r(array(
                 'Date' => Zend_Date::now()->get(Zend_Date::DATETIME_SHORT),
                 'Type' => $errorMap[$errno],
                 'Message' => $errstr,
                 'File' => $errfile,
                 'Line' => $errline
-            ], true);
+            ), true);
+
+            file_put_contents(__DIR__ . '/error.log', $message, FILE_APPEND);
 
             if (E_RECOVERABLE_ERROR == $errno) {
                 throw new Exception('E_RECOVERABLE_ERROR: <pre>' . $message . '</pre>');
             }
-
-
-            file_put_contents('/var/www/next/error.log', $message, FILE_APPEND);
         });
     }
 

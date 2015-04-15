@@ -44,7 +44,7 @@ class DatabaseAdapter
             ->innerJoin('rel', 's_articles_details', 'det', 'det.id = rel.article_id')
             ->innerJoin('det', 's_articles_categories', 'cat', 'cat.articleID = det.articleID')
             ->where('cat.categoryID IN (:subcategoryIds)')
-            ->setParameters('subcategories', $subCategories, Connection::PARAM_INT_ARRAY);
+            ->setParameter(':subcategoryIds', $subCategories, Connection::PARAM_INT_ARRAY);
 
 //
 //        if ($optionIds != '') {

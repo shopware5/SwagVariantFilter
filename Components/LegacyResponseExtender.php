@@ -5,8 +5,8 @@ use Doctrine\DBAL\Driver\PDOStatement;
 use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
 use Shopware\SwagVariantFilter\Components\Common\FilterOptionAbstract;
-use Shopware\SwagVariantFilter\Components\Common\OptionHelper;
-use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
+use Shopware\SwagVariantFilter\Components\Common\ConfigAdapter;
+use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 
 /**
  * Class LegacyResponseExtender
@@ -24,9 +24,9 @@ class LegacyResponseExtender
     private $requestHelper;
 
     /**
-     * @var OptionHelper
+     * @var ConfigAdapter
      */
-    private $optionHelper;
+    private $configAdapter;
 
     /**
      * @var array
@@ -42,12 +42,12 @@ class LegacyResponseExtender
      * Expects list of active category id's
      *
      * @param RequestHelper $requestHelper
-     * @param OptionHelper $optionHelper
+     * @param ConfigAdapter $configAdapter
      */
-    public function __Construct(RequestHelper $requestHelper, OptionHelper $optionHelper)
+    public function __construct(RequestHelper $requestHelper, ConfigAdapter $configAdapter)
     {
         $this->requestHelper = $requestHelper;
-        $this->optionHelper = $optionHelper;
+        $this->configAdapter = $configAdapter;
     }
 
     /**
@@ -137,7 +137,7 @@ class LegacyResponseExtender
             . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1) ";
 
         $whereSQL = " AND a.id NOT IN (SELECT s_articles.id from s_articles, s_articles_details AS aDetails "
-            . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock < {$this->optionHelper->getMinStock()}) ";
+            . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock < {$this->configAdapter->getMinStock()}) ";
 
         // Match SW 4.1 as well as SW 408 and before
         $sql = preg_replace("#ON aTax.id ?= ?a.taxID#", $newSQL, $baseQuery);
@@ -231,10 +231,10 @@ class LegacyResponseExtender
             ->join('iart', 's_articles_details', 'iaDetails', 'iaDetails.articleid = iart.id')
             ->join('iaDetails', 's_article_configurator_option_relations', 'iacor', 'iacor.article_id = iaDetails.id')
             ->join('iacor', 's_article_configurator_options', 'iaco', $stockQueryBuilder->expr()->in('iacor.option_id',
-                    $this->requestHelper->getActiveOptions()) . ' AND ' .
+                    $this->requestHelper->getRequestedVariantIds()) . ' AND ' .
                 $stockQueryBuilder->expr()->in('iaco.group_id', $groupIds) .
                 ' AND iacor.option_id = iaco.id')
-            ->where('iaDetails.active = 1 AND iaDetails.instock < ' . $this->optionHelper->getMinStock() . '');
+            ->where('iaDetails.active = 1 AND iaDetails.instock < ' . $this->configAdapter->getMinStock() . '');
 
 
         $builder = Shopware()->Models()->getDBALQueryBuilder();
@@ -242,8 +242,10 @@ class LegacyResponseExtender
         $stmt = $builder->select('COUNT(DISTINCT ad.articleID)')
             ->from('s_article_configurator_option_relations', 'acor')
             ->join('acor', 's_articles_details', 'ad', 'acor.article_id = ad.id AND ad.articleID NOT IN (' . $stockQueryBuilder->getSQL() . ')')
-            ->join('ad', 's_articles_categories', 'ac', 'ad.articleID=ac.articleID AND ' . $builder->expr()->in('ac.categoryID', $subCategories))
-            ->where($builder->expr()->in('option_id', $this->requestHelper->getActiveOptions()))
+            ->join('ad', 's_articles_categories', 'ac', 'ad.articleID=ac.articleID AND ac.categoryID IN (:subCategories)')
+            ->where('option_id IN (:optionIds)')
+            ->setParameter(':optionIds', $this->requestHelper->getRequestedVariantIds())
+            ->setParameter(':subCategories', $subCategories)
             ->execute();
 
         return (int) $stmt->fetch(\PDO::FETCH_COLUMN, 0);

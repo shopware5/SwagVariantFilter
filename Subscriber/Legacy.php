@@ -3,6 +3,7 @@
 namespace Shopware\SwagVariantFilter\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
+use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 use Shopware\SwagVariantFilter\Components\LegacyFilterService;
 use Shopware\SwagVariantFilter\Components\LegacyResponseExtender;
 
@@ -17,6 +18,18 @@ use Shopware\SwagVariantFilter\Components\LegacyResponseExtender;
  */
 class Legacy implements SubscriberInterface
 {
+    /**
+     * @var RequestHelper
+     */
+    private $requestHelper;
+
+    /**
+     * @param RequestHelper $requestHelper
+     */
+    public function __construct(RequestHelper $requestHelper)
+    {
+        $this->requestHelper = $requestHelper;
+    }
 
     /**
      * {@inheritdoc}
@@ -48,13 +61,16 @@ class Legacy implements SubscriberInterface
         $controller = $args->getSubject();
         $request = $controller->Request();
 
+        $categoryId = $request->sCategory;
+
         /** @var LegacyFilterService $legacyFilter */
-        $legacyFilter = Shopware()->Container()->get('SwagVariantLegacyFilter')->setUp($request->sCategory);
-        if (!$legacyFilter->isActive()) {
+        $legacyFilter = Shopware()->Container()->get('SwagVariantLegacyFilter');
+        $legacyFilter->match($categoryId);
+        if (!$legacyFilter->isValid()) {
             return;
         }
 
-        $filterConditions = $legacyFilter->getFilterConditions();
+        $filterConditions = $legacyFilter->getFilterConditions($request->sCategory, $this->requestHelper->getRequestedVariantIds());
 
         if (!$filterConditions) {
             return;
@@ -71,15 +87,16 @@ class Legacy implements SubscriberInterface
      * Filter articles based on selected variant filter
      *
      * @param \Enlight_Event_EventArgs $arguments
-     * @return array
+     * @return array|null
      */
     public function afterGetArticlesByCategory(\Enlight_Event_EventArgs $arguments)
     {
+        /** @var int $categoryId */
+        $categoryId = Shopware()->Front()->Request()->sCategory;
         /** @var LegacyFilterService $legacyFilter */
-        $legacyFilter = Shopware()->Container()->get('SwagVariantLegacyFilter')
-            ->setUp(Shopware()->Front()->Request()->sCategory);
+        $legacyFilter = Shopware()->Container()->get('SwagVariantLegacyFilter');
 
-        if (!$legacyFilter->hasActiveOptions()) {
+        if (!$this->requestHelper->hasVariantIds()) {
             return;
         }
 
@@ -87,7 +104,9 @@ class Legacy implements SubscriberInterface
         $legacyResponseExtender = Shopware()->Container()->get('SwagVariantLegacyResponseExtender');
 
         return $legacyResponseExtender
-            ->fromFilterGroups($legacyFilter->getFilterConditions())
+            ->fromFilterGroups(
+                $legacyFilter->getFilterConditions($this->requestHelper->getRequestedVariantIds())
+            )
             ->extendViewData($arguments->getReturn());
     }
 
@@ -102,21 +121,27 @@ class Legacy implements SubscriberInterface
      */
     public function onGetArticlesByCategoryFilterSql(\Enlight_Event_EventArgs $args)
     {
-        /** @var LegacyFilterService $legacyFilter */
-        $legacyFilter = Shopware()->Container()->get('SwagVariantLegacyFilter')->setUp(Shopware()->Front()->Request()->sCategory);
+        /** @var int $categoryId */
+        $categoryId = Shopware()->Front()->Request()->sCategory;
 
         $baseQuery = $args->getReturn();
 
-        if (!$legacyFilter->hasActiveOptions()) {
+        if (!$this->requestHelper->hasVariantIds()) {
             return $baseQuery;
         }
 
-        $filterItems = $legacyFilter->getFilterConditions();
+        $filterItems = Shopware()->Container()
+            ->get('SwagVariantLegacyFilter')
+            ->getFilterConditions(
+                $categoryId,
+                $this->requestHelper->getRequestedVariantIds()
+            );
 
         /** @var LegacyResponseExtender $legacyResponseExtender */
         $legacyResponseExtender = Shopware()->Container()->get('SwagVariantLegacyResponseExtender');
 
-        return $legacyResponseExtender->fromFilterGroups($filterItems)
+        return $legacyResponseExtender
+            ->fromFilterGroups($filterItems)
             ->extendQuery($baseQuery);
     }
 }

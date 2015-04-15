@@ -1,14 +1,14 @@
 <?php
-namespace Shopoware\SwagVariantFilter\Components\LegacyFilter;
+namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
 
-use \Shopware\SwagVariantFilter\Components\Common\FilterOptionAbstract as AbstractFilterOption;
-use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
+use Shopware\SwagVariantFilter\Components\Common\FilterOptionAbstract;
+use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 
 /**
  * Class FilterOption
  * @package Shopoware\SwagVariantFilter\Components\LegacyFilter
  */
-class FilterOption extends AbstractFilterOption
+class FilterOption extends FilterOptionAbstract
 {
 
     /**

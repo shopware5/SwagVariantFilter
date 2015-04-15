@@ -1,10 +1,15 @@
 <?php
 namespace Shopware\SwagVariantFilter\Components;
 
+use Shopware\SwagVariantFilter\Components\Common\AccessibilityInterface;
+use Shopware\SwagVariantFilter\Components\Common\ConfigAdapter;
 use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
+use Shopware\SwagVariantFilter\Components\Common\FilterDataFactory;
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
-use Shopware\SwagVariantFilter\Components\Common\OptionHelper;
-use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
+use Shopware\SwagVariantFilter\Components\Common\ServiceAbstract;
+use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterDataByCategoryFactory;
+use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterGroup;
+use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 
 /**
  * Class LegacyFilter
@@ -17,13 +22,8 @@ use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
  *
  * @package Shopware\SwagVariantFilter\Components
  */
-class LegacyFilterService
+class LegacyFilterService extends ServiceAbstract implements AccessibilityInterface
 {
-
-    /**
-     * @var array
-     */
-    private $conditions;
 
     /**
      * @var DatabaseAdapter
@@ -41,36 +41,20 @@ class LegacyFilterService
     private $optionHelper;
 
     /**
-     * @var int
+     * @var bool
      */
-    private $requestedCategoryIds;
+    private $filterAccessible = false;
 
     /**
-     * Expects list of active category id's
+     * Generates the filter
      *
      * @param RequestHelper $requestHelper
-     * @param OptionHelper $optionHelper
+     * @param ConfigAdapter $optionHelper
      */
-    public function __construct(RequestHelper $requestHelper, OptionHelper $optionHelper)
+    public function __construct(RequestHelper $requestHelper, ConfigAdapter $optionHelper)
     {
         $this->requestHelper = $requestHelper;
         $this->optionHelper = $optionHelper;
-    }
-
-    /**
-     * @todo have a better idea, maybe split objects?
-     * @param $requestedCategoryId
-     * @return $this
-     */
-    public function setUp($requestedCategoryIds)
-    {
-        if (!$requestedCategoryIds) {
-            throw new \InvalidArgumentException('Missing required param "$requestedCategoryId"');
-        }
-
-        $this->requestedCategoryIds = $requestedCategoryIds;
-
-        return $this;
     }
 
     /**
@@ -85,84 +69,51 @@ class LegacyFilterService
         return $this->databaseAdapter;
     }
 
-
     /**
-     * Determine if filter should be processed and diplayed for current page
+     * Match configuration with current request
      *
-     * Defaults to true if nothing is set
-     * @return bool
+     * @throws \InvalidArgumentException
+     * @param $categoryId
+     * @return mixed
      */
-    public function isActive()
+    public function match($categoryId)
     {
+        $this->filterAccessible = false;
+
         if (!$this->optionHelper->hasEnabledCategories()) {
-            return true;
+            $this->filterAccessible = true;
         }
 
-        foreach ($this->optionHelper->getEnabledCategoryIds() as $categoryId) {
-            if ($categoryId == $this->requestedCategoryId) {
-                return true;
-            }
+        if (in_array($categoryId, $this->optionHelper->getEnabledCategoryIds())) {
+            $this->filterAccessible = true;
         }
 
-        return false;
+        return $this;
     }
 
+
     /**
-     * @return Shopware\SwagVariantFilter\Components\LegacyFilter\FilterItem[]
+     * @return FilterDataFactory
      */
-    public function getFilterConditions()
+    protected function getDataFactory()
     {
-        if (!$this->conditions) {
-            $categories = $this->getDatabaseAdpater()->getSubcategories($this->requestedCategoryId);
-            $rawConditionData = $this->getDatabaseAdpater()->getConfigurationOptions($categories);
-            $this->conditions = $this->hydrateConditionData($rawConditionData);
-        }
-
-        return $this->conditions;
+        return new FilterDataByCategoryFactory($this->getDatabaseAdpater());
     }
 
     /**
-     * @param $rawConditionData
-     * @return hopware\SwagVariantFilter\Components\LegacyFilter\FilterItem[]
+     * {@inheritdoc}
      */
-    private function hydrateConditionData($rawConditionData)
+    protected function createFilterGroup($id, $label)
     {
-        $ret = array();
-
-        foreach ($rawConditionData as $data) {
-            $groupName = $data['group_name'];
-            $isActive = false;
-
-            if (!isset($ret[$groupName])) {
-                $ret[$groupName] = $this->createCondition($data['group_id'], $groupName);
-            }
-
-            if (in_array($data['option_id'], $this->requestHelper->getActiveOptions())) {
-                $isActive = true;
-            }
-
-            $ret[$groupName]->addOption($data['option_id'], $data['option_name'], $isActive);
-        }
-
-        return $ret;
+        return new FilterGroup($this->requestHelper, $id, $label);
     }
 
     /**
-     * @param $label
-     * @return FilterGroupAbstract
-     */
-    private function createCondition($id, $label)
-    {
-        return new FilterGroupAbstract($this->requestHelper, $id, $label);
-    }
-
-    /**
+     * @throws \BadFunctionCallException
      * @return bool
      */
-    public function hasActiveOptions()
+    public function isValid()
     {
-        return count($this->requestHelper->getActiveOptions()) > 0;
+        return $this->filterAccessible;
     }
-
-
 }

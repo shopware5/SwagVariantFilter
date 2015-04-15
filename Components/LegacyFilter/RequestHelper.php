@@ -6,6 +6,13 @@ namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
 
 use Shopware\SwagVariantFilter\Components\Common\RequestAdapter;
 
+/**
+ * Class RequestHelper
+ *
+ * Extended legacy request helper, wich is used as a request inspector and url generator
+ *
+ * @package Shopware\SwagVariantFilter\Components\LegacyFilter
+ */
 class RequestHelper extends RequestAdapter
 {
     /**
@@ -53,7 +60,7 @@ class RequestHelper extends RequestAdapter
      */
     private function getUrlPRefix()
     {
-        return $this->getBaseUrl() . '&oid=';
+        return $this->getBaseUrl() . '&' . self::PARAM_NAME . '=';
     }
 
     public function getBaseUrl()
@@ -85,6 +92,6 @@ class RequestHelper extends RequestAdapter
      */
     public function getRawActiveOptionIds($default = '')
     {
-        return (string) Shopware()->Front()->Request()->getParam('oid', $default);
+        return (string) Shopware()->Front()->Request()->getParam(self::PARAM_NAME, $default);
     }
 }

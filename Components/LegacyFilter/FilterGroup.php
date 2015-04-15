@@ -1,9 +1,9 @@
 <?php
 namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
 
-use Shopoware\SwagVariantFilter\Components\LegacyFilter\FilterOption;
-use \Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
-use Shopware\SwagVariantFilter\Components\Common\RequestHelper;
+use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterOption;
+use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
+use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 
 /**
  * Class FilterGroup
