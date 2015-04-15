@@ -108,9 +108,6 @@ class LegacyResponseExtender
                 throw new \Exception('Fatal error, group has active item, although no item is marked active');
             }
 
-            /**
-             * @todo determine why this is not a single whereIn without group-ids
-             */
             $tmpSQL = $tmpSQL . "
                 JOIN s_article_configurator_option_relations AS acor$groupId
                 ON acor$groupId.article_id = aDetails.id
