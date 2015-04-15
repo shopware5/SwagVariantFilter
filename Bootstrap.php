@@ -70,10 +70,10 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function onStartDispatch($args)
     {
-//        if (!$this->assertVersionGreaterThen('5')) {
+        if(!$this->assertVersionGreaterThen('5')) {
             $this->initializeLegacy($args);
             return;
-//        }
+        }
 
 
         $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Filter());
