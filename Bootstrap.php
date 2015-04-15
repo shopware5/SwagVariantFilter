@@ -70,8 +70,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function onStartDispatch($args)
     {
-        $this->registerDebugErrorHandler();
-
         if (!$this->assertVersionGreaterThen('5')) {
             $this->initializeLegacy($args);
             return;
@@ -114,56 +112,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
         );
 
         $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Legacy($requestHelper));
-    }
-
-    public function registerDebugErrorHandler()
-    {
-        $errorMap = array(
-            E_ERROR => 'E_ERROR',
-            E_WARNING => 'E_WARNING',
-            E_NOTICE => 'E_NOTICE',
-            E_USER_ERROR => 'E_USER_ERROR',
-            E_USER_NOTICE => 'E_USER_NOTICE',
-            E_STRICT => 'E_STRICT',
-            E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
-            E_DEPRECATED => 'E_DEPRECATED',
-            E_USER_DEPRECATED => 'E_USER_DEPRECATED',
-        );
-
-        register_shutdown_function(function() {
-            restore_error_handler();
-
-            $lastError = error_get_last();
-
-            if(!$lastError) {
-                $message = "\nFinish\n";
-            } else {
-                $message = print_r($lastError, true);
-            }
-
-            file_put_contents(__DIR__ . '/error.log', $message, FILE_APPEND);
-
-        });
-
-        set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($errorMap) {
-            if (strpos($errfile, __DIR__) === false) {
-                return;
-            }
-
-            $message = print_r(array(
-                'Date' => Zend_Date::now()->get(Zend_Date::DATETIME_SHORT),
-                'Type' => $errorMap[$errno],
-                'Message' => $errstr,
-                'File' => $errfile,
-                'Line' => $errline
-            ), true);
-
-            file_put_contents(__DIR__ . '/error.log', $message, FILE_APPEND);
-
-            if (E_RECOVERABLE_ERROR == $errno) {
-                throw new Exception('E_RECOVERABLE_ERROR: <pre>' . $message . '</pre>');
-            }
-        });
     }
 
     /*
