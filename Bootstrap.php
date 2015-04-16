@@ -85,7 +85,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      *
      * @param $args
      */
-    private function initializeLegacy($args)
+    private function initializeLegacy(Enlight_Controller_EventArgs $args)
     {
         $requestHelper = new \Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper($args->getRequest());
         $this->Application()->Events()->addSubscriber(new \Shopware\SwagVariantFilter\Subscriber\LegacyServiceContainer($requestHelper));
