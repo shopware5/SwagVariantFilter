@@ -103,9 +103,16 @@ class LegacyServiceContainer implements SubscriberInterface {
      */
     private function getTranslate() {
         if(!$this->translate) {
+
+            $fallbackLocaleId = -1;
+            if(Shopware()->Shop()->getFallback()) {
+                $fallbackLocaleId = Shopware()->Shop()->getFallback()->getLocale()->getId();
+            }
+
             $this->translate = new ConfiguratorTranslate(
                 $this->getDatabaseAdapter(),
-                Shopware()->Shop()->getLocale()->getId()
+                Shopware()->Shop()->getLocale()->getId(),
+                $fallbackLocaleId
             );
         }
 

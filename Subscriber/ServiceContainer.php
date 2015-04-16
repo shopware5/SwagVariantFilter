@@ -78,6 +78,11 @@ class ServiceContainer implements SubscriberInterface
     {
         $dbAdapter = $this->createDbAdapater();
 
+        $fallbackLocaleId = -1;
+        if(Shopware()->Shop()->getFallback()) {
+            $fallbackLocaleId = Shopware()->Shop()->getFallback()->getLocale()->getId();
+        }
+
         return new ProductVariantService(
             $this->createFilterConditionFactory(
                 $dbAdapter
@@ -85,7 +90,7 @@ class ServiceContainer implements SubscriberInterface
             $this->createTranlate(
                 $dbAdapter,
                 Shopware()->Shop()->getLocale()->getId(),
-                Shopware()->Shop()->getFallback()->getLocale()->getId()
+                $fallbackLocaleId
             )
         );
     }
