@@ -64,8 +64,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     /**
      * Init Services & Subscribers
      *
-     * @todo the only way to stay here error free is to omit the typehint, since SW4 and SW5 eill use different EventArgs-classes, add type hint when sw4 code is removed
-     *
      * @param Enlight_Controller_EventArgs $args
      */
     public function onStartDispatch(Enlight_Controller_EventArgs $args)
