@@ -48,8 +48,13 @@ class Filter implements SubscriberInterface
     {
         /** @var \Enlight_Controller_Request_Request $request */
         $request = $args->getSubject()->Request();
+        $categoryId = $request->sCategory;
 
-        $this->getAccessibilityService()->match($request->sCategory);
+        if(!$categoryId) {
+            return;
+        }
+
+        $this->getAccessibilityService()->match($categoryId);
     }
 
     /**
