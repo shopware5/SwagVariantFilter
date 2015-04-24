@@ -10,7 +10,7 @@ use Shopware\SwagVariantFilter\Components\Common\ConfiguratorTranslate;
 use Shopware\SwagVariantFilter\Components\Common\RequestAdapter;
 use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
 use Shopware\SwagVariantFilter\Components\ProductVariantService;
-use Shopware\SwagVariantFilter\Components\Filter\FilterDataByGroupFactory;
+use Shopware\SwagVariantFilter\Components\Filter\FilterDataByOptionFactory;
 
 /**
  * Class ServiceContainer
@@ -107,11 +107,11 @@ class ServiceContainer implements SubscriberInterface
 
     /**
      * @param DatabaseAdapter $adapter
-     * @return FilterDataByGroupFactory
+     * @return FilterDataByOptionFactory
      */
     private function createFilterConditionFactory(DatabaseAdapter $adapter)
     {
-        return new FilterDataByGroupFactory($adapter);
+        return new FilterDataByOptionFactory($adapter);
     }
 
     /**

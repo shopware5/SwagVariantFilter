@@ -4,7 +4,7 @@ namespace Shopware\SwagVariantFilter\Components\Filter;
 
 use \Shopware\SwagVariantFilter\Components\Common\FilterDataFactory as AbstractFactory;
 
-class FilterDataByGroupFactory extends AbstractFactory
+class FilterDataByOptionFactory extends AbstractFactory
 {
     public function getRawData($values)
     {
@@ -12,6 +12,6 @@ class FilterDataByGroupFactory extends AbstractFactory
             throw new \InvalidArgumentException('Invalid param $values');
         }
 
-        return $this->dbAdapter->getConfigurationOptionsFromGroupIds($values);
+        return $this->dbAdapter->getConfigurationOptionsFromOptionIds($values);
     }
 }

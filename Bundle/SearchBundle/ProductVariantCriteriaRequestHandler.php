@@ -33,16 +33,44 @@ class ProductVariantCriteriaRequestHandler implements CriteriaRequestHandlerInte
             new ProductVariantFacet()
         );
 
-        $selectedOptionsRaw = $request->getParam(RequestAdapter::PARAM_NAME, false);
+        $selectedOptions = $this->getRequestedGroups($request);
 
-        if (!$selectedOptionsRaw) {
+        if (!$selectedOptions) {
             return;
         }
 
         $criteria->addCondition(
             new ProductVariantCondition(
-                explode('|', $selectedOptionsRaw)
+                $selectedOptions
             )
         );
+    }
+
+    /**
+     * Create a result array from multiple requested names
+     *
+     * @param Request $request
+     * @return array
+     */
+    private function getRequestedGroups(Request $request)
+    {
+        $params = $request->getParams();
+        $selectedOptions = [];
+
+        foreach($params as $key => $value) {
+            if(strpos($key, RequestAdapter::PARAM_NAME) !== 0) {
+                continue;
+            }
+
+            $parts = explode('_', $key);
+
+            if(count($parts) !== 3) {
+                continue;
+            }
+
+            $selectedOptions[$parts[2]] = explode('|', $value);
+        }
+
+        return $selectedOptions;
     }
 }

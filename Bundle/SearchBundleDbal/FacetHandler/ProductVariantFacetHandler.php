@@ -66,26 +66,27 @@ class ProductVariantFacetHandler implements FacetHandlerInterface
         $productVariantCondition = $criteria->getCondition('swag-variant-filter-product-variant');
 
         if ($productVariantCondition && $productVariantCondition instanceof ProductVariantCondition) {
-            $activeOptions = $productVariantCondition->getProductVariantIds();
+            $activeOptions = $productVariantCondition->getProductVariantIds(ProductVariantCondition::FORMAT_FLAT);
         }
 
         $queryCriteria = clone $criteria;
         $queryCriteria->resetConditions();
 
         $query = $this->queryBuilderFactory->createQuery($queryCriteria, $context);
-        $query->select('configuratorOptions.group_id')
+        $query->select('configuratorOptionRelations.option_id')
             ->innerJoin(
-                'variant',
+                'product',
+                's_articles_details',
+                'variantFilterDetails',
+                'variantFilterDetails.articleID = product.id'
+            )
+            ->innerJoin(
+                'variantFilterDetails',
                 's_article_configurator_option_relations',
                 'configuratorOptionRelations',
-                'configuratorOptionRelations.article_id = variant.id'
-            )->innerJoin(
-                'configuratorOptionRelations',
-                's_article_configurator_options',
-                'configuratorOptions',
-                'configuratorOptions.id = configuratorOptionRelations.option_id'
+                'configuratorOptionRelations.article_id = variantFilterDetails.id'
             )
-            ->groupBy('configuratorOptions.group_id');
+            ->groupBy('configuratorOptionRelations.option_id');
 
         $ids = (array) $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 

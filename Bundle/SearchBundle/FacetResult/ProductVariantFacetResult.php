@@ -39,7 +39,7 @@ class ProductVariantFacetResult extends FacetResultGroup
                 true,
                 $group->getLabel(),
                 $group->getOptions(),
-                RequestAdapter::PARAM_NAME
+                RequestAdapter::PARAM_NAME . '_' . $group->getId()
             );
         }
 

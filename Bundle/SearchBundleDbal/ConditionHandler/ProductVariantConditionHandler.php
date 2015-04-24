@@ -26,14 +26,7 @@ class ProductVariantConditionHandler implements ConditionHandlerInterface
     }
 
     /**
-     * Handles the passed condition object.
-     * Extends the provided query builder with the specify conditions.
-     * Should use the andWhere function, otherwise other conditions would be overwritten.
-     *
-     * @param ProductVariantCondition $condition
-     * @param QueryBuilder $query
-     * @param ShopContextInterface $context
-     * @return void
+     * {@inheritdoc}
      */
     public function generateCondition(
         ConditionInterface $condition,
@@ -47,12 +40,25 @@ class ProductVariantConditionHandler implements ConditionHandlerInterface
             return;
         }
 
-        $query->innerJoin(
-            'variant',
-            's_article_configurator_option_relations',
-            'confoptionsrel',
-            'variant.id = confoptionsrel.article_id AND confoptionsrel.option_id IN (:optionIds)'
-        )
-            ->setParameter(':optionIds', $ids, Connection::PARAM_INT_ARRAY);
+        $query
+            ->innerJoin(
+                'product',
+                's_articles_details',
+                'variantFilterArticleDetails',
+                'variantFilterArticleDetails.articleID = product.id'
+            );
+
+        foreach($ids as $groupId => $variantOptions) {
+            $tableAlias = 'variantFilterArticleDetails' . $groupId;
+            $paramAlias = ':options' . $groupId;
+
+            $query->innerJoin(
+                'variantFilterArticleDetails',
+                's_article_configurator_option_relations',
+                $tableAlias,
+                'variantFilterArticleDetails.id = ' . $tableAlias . '.article_id AND ' . $tableAlias. '.option_id IN (' . $paramAlias . ')'
+            )
+            ->setParameter($paramAlias, $variantOptions, Connection::PARAM_INT_ARRAY);
+        }
     }
 }
