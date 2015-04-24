@@ -1,5 +1,5 @@
 {block name="frontend_index_header_css_screen" append}
-    <link type="text/css" media="screen, presentation" rel="stylesheet" href="{link file='frontend/plugins/SwagVariantFilter/_resources/styles/variant_filter.css'}" />
+    <link type="text/css" media="screen, presentation" rel="stylesheet" href="{link file='frontend/plugins/swag_variant_filter/_resources/styles/variant_filter.css'}" />
 {/block}
 
 {block name="frontend_listing_right_filter_properties" append}

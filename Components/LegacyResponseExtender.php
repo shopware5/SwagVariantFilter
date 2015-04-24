@@ -123,7 +123,7 @@ class LegacyResponseExtender
             . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1) ";
 
         $whereSQL = " AND a.id NOT IN (SELECT s_articles.id from s_articles, s_articles_details AS aDetails "
-            . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock < {$this->configAdapter->getMinStock()}) ";
+            . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock <= {$this->configAdapter->getMinStock()}) ";
 
         // Match SW 4.1 as well as SW 408 and before
         $sql = preg_replace("#ON aTax.id ?= ?a.taxID#", $newSQL, $baseQuery);
