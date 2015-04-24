@@ -7,7 +7,7 @@ use Shopware\SwagVariantFilter\Components\Common\ConfiguratorTranslate;
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
 use Shopware\SwagVariantFilter\Components\Common\ServiceAbstract;
 use Shopware\SwagVariantFilter\Components\Filter\FilterGroup;
-use Shopware\SwagVariantFilter\Components\Filter\FilterDataByGroupFactory;
+use Shopware\SwagVariantFilter\Components\Filter\FilterDataByOptionFactory;
 
 /**
  * Class ProductVariantService
@@ -16,7 +16,7 @@ use Shopware\SwagVariantFilter\Components\Filter\FilterDataByGroupFactory;
 class ProductVariantService extends ServiceAbstract
 {
     /**
-     * @var FilterDataByGroupFactory
+     * @var FilterDataByOptionFactory
      */
     private $factory;
 
@@ -26,10 +26,10 @@ class ProductVariantService extends ServiceAbstract
     private $translate;
 
     /**
-     * @param FilterDataByGroupFactory $factory
+     * @param FilterDataByOptionFactory $factory
      * @param ConfiguratorTranslate $translate
      */
-    public function __construct(FilterDataByGroupFactory $factory, ConfiguratorTranslate $translate)
+    public function __construct(FilterDataByOptionFactory $factory, ConfiguratorTranslate $translate)
     {
         $this->factory = $factory;
         $this->translate = $translate;
@@ -46,7 +46,7 @@ class ProductVariantService extends ServiceAbstract
     }
 
     /**
-     * @return FilterDataByGroupFactory
+     * @return FilterDataByOptionFactory
      */
     protected function getDataFactory()
     {

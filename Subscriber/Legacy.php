@@ -79,7 +79,7 @@ class Legacy implements SubscriberInterface
         $controller->View()->assign(array(
             'swagVariantFilterConditions' => $filterConditions,
         ));
-        $controller->View()->addTemplateDir(dirname(__FILE__) . '/../views/');
+        $controller->View()->addTemplateDir(__DIR__ . '/../Views/');
         $controller->View()->extendsTemplate('frontend/plugins/swag_variant_filter/right.tpl');
     }
 

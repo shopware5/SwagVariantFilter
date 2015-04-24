@@ -78,10 +78,10 @@ class DatabaseAdapter
      * @param array $groupIds
      * @return mixed
      */
-    public function getConfigurationOptionsFromGroupIds(array $groupIds)
+    public function getConfigurationOptionsFromOptionIds(array $groupIds)
     {
         $builder = $this->getConfigurationOptionQueryBuilder()
-            ->where('gr.id IN (:groupIds)')
+            ->where('rel.option_id IN (:groupIds)')
             ->setParameter(':groupIds', $groupIds, Connection::PARAM_INT_ARRAY);
 
         return $builder->execute()

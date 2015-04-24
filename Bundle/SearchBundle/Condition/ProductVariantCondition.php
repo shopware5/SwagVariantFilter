@@ -14,6 +14,16 @@ use Shopware\Bundle\SearchBundle\ConditionInterface;
  */
 class ProductVariantCondition implements ConditionInterface
 {
+    /**
+     * Format result to be flat
+     */
+    const FORMAT_FLAT = 'flat';
+
+    /**
+     * default result
+     */
+    const FORMAT_GROUPED = 'grouped';
+
 
     /**
      * @var array
@@ -29,11 +39,26 @@ class ProductVariantCondition implements ConditionInterface
     }
 
     /**
+     * @param string $format
      * @return array
      */
-    public function getProductVariantIds()
+    public function getProductVariantIds($format = 'grouped')
     {
-        return $this->productVariantIds;
+        switch($format) {
+            case self::FORMAT_GROUPED:
+                return $this->productVariantIds;
+            case self::FORMAT_FLAT:
+                $ret = [];
+                foreach($this->productVariantIds as $variantIds) {
+                    foreach($variantIds as $variantId) {
+                        $ret[] = $variantId;
+                    }
+                }
+
+                return $ret;
+        }
+
+        throw new \InvalidArgumentException('Invalid param $format');
     }
 
     /**
