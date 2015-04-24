@@ -33,9 +33,8 @@ class Filter implements SubscriberInterface
             'Enlight_Controller_Action_PreDispatch_Frontend_Listing' => 'inspectRequest',
             'Enlight_Controller_Action_PreDispatch_Widgets_Listing' => 'inspectRequest',
             'Shopware_SearchBundle_Collect_Criteria_Request_Handlers' => 'getVariantRequestHandler',
-            'Shopware_SearchBundle_Create_Listing_Criteria' => [
-                ['addMinStockCondition'],
-            ],
+            'Shopware_SearchBundle_Create_Listing_Criteria' => 'addMinStockCondition',
+            'Shopware_SearchBundle_Create_Ajax_Count_Criteria' => 'addMinStockCondition',
             'Shopware_SearchBundleDBAL_Collect_Condition_Handlers' => [
                 ['getVariantConditionHandler'],
                 ['getMinStockConditionHandler'],
