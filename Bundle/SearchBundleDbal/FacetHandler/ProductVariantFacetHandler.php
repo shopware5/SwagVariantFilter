@@ -90,8 +90,14 @@ class ProductVariantFacetHandler implements FacetHandlerInterface
 
         $ids = (array) $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
+        $filterConditions = $this->productVariantService->getFilterConditions($ids, $activeOptions);
+
+        if(!$filterConditions) {
+            return null;
+        }
+
         return new ProductVariantFacetResult(
-            $this->productVariantService->getFilterConditions($ids, $activeOptions),
+            $filterConditions,
             $this->snippetNamespace->get('FilterHeadlineVariants', 'Variantfilter')
         );
     }
