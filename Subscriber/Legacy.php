@@ -91,8 +91,6 @@ class Legacy implements SubscriberInterface
      */
     public function afterGetArticlesByCategory(\Enlight_Event_EventArgs $arguments)
     {
-        /** @var int $categoryId */
-        $categoryId = Shopware()->Front()->Request()->sCategory;
         /** @var LegacyFilterService $legacyFilter */
         $legacyFilter = Shopware()->Container()->get('SwagVariantLegacyFilter');
 
