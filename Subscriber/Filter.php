@@ -75,7 +75,11 @@ class Filter implements SubscriberInterface
             return;
         }
 
-        $args->getCriteria()->addCondition(new MinStockCondition($this->getConfigAdapter()->getMinStock()));
+        $args->getCriteria()->addCondition(
+            new MinStockCondition(
+                $this->getConfigAdapter()->getMinStock()
+            )
+        );
     }
 
     public function getVariantRequestHandler()
@@ -84,7 +88,9 @@ class Filter implements SubscriberInterface
             return;
         }
 
-        return new ProductVariantCriteriaRequestHandler();
+        return new ProductVariantCriteriaRequestHandler(
+            $this->getRequestAdapter()
+        );
     }
 
     public function getVariantFilterFacetHandler()

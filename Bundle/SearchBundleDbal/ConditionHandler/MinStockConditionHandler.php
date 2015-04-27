@@ -51,7 +51,7 @@ class MinStockConditionHandler implements ConditionHandlerInterface
             return;
         }
 
-        $query->andWhere('variant.instock > :minStock')
+        $query->andWhere('variant.instock >= :minStock')
             ->setParameter(':minStock', $condition->getMinStock());
     }
 }

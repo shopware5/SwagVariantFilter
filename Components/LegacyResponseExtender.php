@@ -1,11 +1,13 @@
 <?php
 namespace Shopware\SwagVariantFilter\Components;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOStatement;
 use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
 use Shopware\SwagVariantFilter\Components\Common\FilterOptionAbstract;
 use Shopware\SwagVariantFilter\Components\Common\ConfigAdapter;
+use Shopware\SwagVariantFilter\Components\Common\RequestAdapter;
 use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 
 /**
@@ -123,7 +125,7 @@ class LegacyResponseExtender
             . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1) ";
 
         $whereSQL = " AND a.id NOT IN (SELECT s_articles.id from s_articles, s_articles_details AS aDetails "
-            . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock <= {$this->configAdapter->getMinStock()}) ";
+            . $tmpSQL . " WHERE  aDetails.articleID = s_articles.id and aDetails.active = 1 AND aDetails.instock < {$this->configAdapter->getMinStock()}) ";
 
         // Match SW 4.1 as well as SW 408 and before
         $sql = preg_replace("#ON aTax.id ?= ?a.taxID#", $newSQL, $baseQuery);
@@ -152,7 +154,7 @@ class LegacyResponseExtender
         $activePerPage = $this->requestHelper->getPerPage();
 
         foreach ($result["sPerPage"] as &$singlePerPage) {
-            $singlePerPage["link"] .= "&oid=" . $this->requestHelper->getRawActiveOptionIds();
+            $singlePerPage["link"] .= "&" . RequestAdapter::PARAM_NAME . "=" . $this->requestHelper->getRawActiveOptionIds();
             if ($singlePerPage["markup"]) {
                 $activePerPage = $singlePerPage["value"];
             }
@@ -168,27 +170,27 @@ class LegacyResponseExtender
                 continue;
             }
 
-            foreach ($pages["numbers"] as $page) {
+            for ($j = 0; $j < count($pages["numbers"]); $j++) {
                 $numbersArray[$i] = array(
                     "markup" => $pages["numbers"][$i]["markup"],
                     "value" => $pages["numbers"][$i]["value"],
-                    "link" => $pages["numbers"][$i]["link"] . "&oid=" . $this->requestHelper->getRawActiveOptionIds()
+                    "link" => $pages["numbers"][$i]["link"] . "&" . RequestAdapter::PARAM_NAME . "=" . $this->requestHelper->getRawActiveOptionIds()
                 );
             }
         }
         $pages["numbers"] = $numbersArray;
 
 
-        if (!empty($pages["previous"])) {
-            $pages["previous"] .= "&oid=" . $this->requestHelper->getRawActiveOptionIds();
+        if (isset($pages["previous"])) {
+            $pages["previous"] .= "&" . RequestAdapter::PARAM_NAME . "=" . $this->requestHelper->getRawActiveOptionIds();
         }
-        if (!empty($pages["next"])) {
-            $pages["next"] .= "&oid=" . $this->requestHelper->getRawActiveOptionIds();
+        if (isset($pages["next"])) {
+            $pages["next"] .= "&" . RequestAdapter::PARAM_NAME . "=" . $this->requestHelper->getRawActiveOptionIds();
         }
 
         $result["sPages"] = $pages;
 
-        $result["categoryParams"]["oid"] = $this->requestHelper->getRawActiveOptionIds();
+        $result["categoryParams"][RequestAdapter::PARAM_NAME] = $this->requestHelper->getRawActiveOptionIds();
 
         return $result;
     }
@@ -210,31 +212,71 @@ class LegacyResponseExtender
 
         $subCategories = $this->databaseAdapter->getSubcategories($request->sCategory);
 
-        // Append condition - filter articles which do not have sufficient instock
-        $stockQueryBuilder = Shopware()->Models()->getDBALQueryBuilder();
-        $stockQueryBuilder->select('iart.id')
-            ->from('s_articles', 'iart')
-            ->join('iart', 's_articles_details', 'iaDetails', 'iaDetails.articleid = iart.id')
-            ->join('iaDetails', 's_article_configurator_option_relations', 'iacor', 'iacor.article_id = iaDetails.id')
-            ->join('iacor', 's_article_configurator_options', 'iaco', $stockQueryBuilder->expr()->in('iacor.option_id',
-                    $this->requestHelper->getRequestedVariantIds()) . ' AND ' .
-                $stockQueryBuilder->expr()->in('iaco.group_id', $groupIds) .
-                ' AND iacor.option_id = iaco.id')
-            ->where('iaDetails.active = 1 AND iaDetails.instock < ' . $this->configAdapter->getMinStock() . '');
-
-
-        $builder = Shopware()->Models()->getDBALQueryBuilder();
         /** @var PDOStatement $stmt */
-        $stmt = $builder->select('COUNT(DISTINCT ad.articleID)')
-            ->from('s_article_configurator_option_relations', 'acor')
-            ->join('acor', 's_articles_details', 'ad', 'acor.article_id = ad.id AND ad.articleID NOT IN (' . $stockQueryBuilder->getSQL() . ')')
-            ->join('ad', 's_articles_categories', 'ac', 'ad.articleID=ac.articleID AND ac.categoryID IN (:subCategories)')
-            ->where('option_id IN (:optionIds)')
-            ->setParameter(':optionIds', $this->requestHelper->getRequestedVariantIds())
-            ->setParameter(':subCategories', $subCategories)
-            ->execute();
+        $query = Shopware()->Models()->getDBALQueryBuilder()
+            ->select('COUNT(DISTINCT details.articleID) as cnt')
+            ->from(
+                's_articles_details',
+                'details'
+            )
+            ->rightJoin(
+                'details',
+                's_articles',
+                'article',
+                'article.id = details.articleID AND article.active = 1'
+            )
+            ->innerJoin(
+                'details',
+                's_articles_categories',
+                'articleCategories',
+                'details.articleID = articleCategories.articleID AND articleCategories.categoryID IN (:subCategories)'
+            )
+            ->setParameter(
+                ':subCategories',
+                $subCategories,
+                Connection::PARAM_INT_ARRAY
+            )
+            ->where('details.active = 1')
+            ->andWhere('details.instock >= :minStock')
+            ->setParameter(
+                ':minStock',
+                (int) $this->configAdapter->getMinStock()
+            );
 
-        return (int) $stmt->fetch(\PDO::FETCH_COLUMN, 0);
+        foreach ($this->requireFilterGroups() as $group) {
+            if (!$group->hasActiveOptions()) {
+                continue;
+            }
 
+            $groupId = $group->getId();
+            $optionIds = array();
+
+            /** @var FilterOptionAbstract $option */
+            foreach ($group->getOptions() as $option) {
+                if (!$option->isActive()) {
+                    continue;
+                }
+
+                $optionIds[] = $option->getId();
+            }
+
+            $tableAlias = 'optionRelations' . $groupId;
+            $paramName = ':optionIds' . $groupId;
+
+            $query->rightJoin(
+                'details',
+                's_article_configurator_option_relations',
+                $tableAlias,
+                $tableAlias . '.article_id = details.id AND ' . $tableAlias . '.option_id IN (' . $paramName . ')'
+            )->setParameter(
+                $paramName,
+                $optionIds,
+                Connection::PARAM_INT_ARRAY
+            );
+        }
+
+        return $query
+            ->execute()
+            ->fetch(\PDO::FETCH_COLUMN);
     }
 }
