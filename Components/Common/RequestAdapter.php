@@ -3,7 +3,7 @@
 namespace Shopware\SwagVariantFilter\Components\Common;
 
 /**
- * Class UrlGenerator
+ * Class RequestAdapter
  *
  * Binding Request + url handling
  *
@@ -23,18 +23,47 @@ class RequestAdapter
     private $requestedVariantIds = array();
 
     /**
+     * @var bool
+     */
+    private $isGrouped = false;
+
+    /**
      * @param \Enlight_Controller_Request_Request $request
      */
     public function __construct(\Enlight_Controller_Request_Request $request)
     {
-        $optionsRaw = $request->getParam(self::PARAM_NAME);
-        if (!$optionsRaw) {
+        $params = $request->getParams();
+        $ids = array();
+
+        foreach($params as $paramName => $paramValue) {
+            if(strpos($paramName, self::PARAM_NAME) !== 0) {
+                continue;
+            }
+
+            $parts = explode('_', $paramName);
+
+            if(count($parts) !== 3) {
+                $ids = explode('|', $paramValue);
+                break;
+            }
+
+            $ids[$parts[2]] = explode('|', $paramValue);
+        }
+
+        if(!$ids) {
             return;
         }
 
-        $this->requestedVariantIds = explode('|', $optionsRaw);
+        if(!$request->has(self::PARAM_NAME)) {
+            $this->isGrouped = true;
+        }
+
+        $this->requestedVariantIds = $ids;
     }
 
+    /**
+     * @return bool
+     */
     public function hasVariantIds()
     {
         return count($this->requestedVariantIds) > 0;
@@ -48,9 +77,20 @@ class RequestAdapter
         return $this->requestedVariantIds;
     }
 
+    /**
+     * @return string
+     */
     public function getParamName()
     {
         return self::PARAM_NAME;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMultiDimensional()
+    {
+        return $this->isGrouped;
     }
 
 

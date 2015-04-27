@@ -18,6 +18,17 @@ use Shopware\SwagVariantFilter\Components\Common\RequestAdapter;
 class ProductVariantCriteriaRequestHandler implements CriteriaRequestHandlerInterface
 {
 
+    private $requestAdapater;
+
+    /**
+     * @param RequestAdapter $requestAdapter
+     */
+    public function __construct(
+        RequestAdapter $requestAdapter
+    ) {
+        $this->requestAdapater = $requestAdapter;
+    }
+
     /**
      * @param Request $request
      * @param Criteria $criteria
@@ -33,7 +44,15 @@ class ProductVariantCriteriaRequestHandler implements CriteriaRequestHandlerInte
             new ProductVariantFacet()
         );
 
-        $selectedOptions = $this->getRequestedGroups($request);
+        if(!$this->requestAdapater->hasVariantIds()) {
+            return;
+        }
+
+        if(!$this->requestAdapater->isMultiDimensional()) {
+            return;
+        }
+
+        $selectedOptions = $this->requestAdapater->getRequestedVariantIds();
 
         if (!$selectedOptions) {
             return;
@@ -44,33 +63,5 @@ class ProductVariantCriteriaRequestHandler implements CriteriaRequestHandlerInte
                 $selectedOptions
             )
         );
-    }
-
-    /**
-     * Create a result array from multiple requested names
-     *
-     * @param Request $request
-     * @return array
-     */
-    private function getRequestedGroups(Request $request)
-    {
-        $params = $request->getParams();
-        $selectedOptions = [];
-
-        foreach($params as $key => $value) {
-            if(strpos($key, RequestAdapter::PARAM_NAME) !== 0) {
-                continue;
-            }
-
-            $parts = explode('_', $key);
-
-            if(count($parts) !== 3) {
-                continue;
-            }
-
-            $selectedOptions[$parts[2]] = explode('|', $value);
-        }
-
-        return $selectedOptions;
     }
 }
