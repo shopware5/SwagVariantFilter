@@ -30,7 +30,7 @@ class ProductVariantFacetResult extends FacetResultGroup
      */
     public function __construct(array $variantGroups, $label)
     {
-        $facetResults = [];
+        $facetResults = array();
 
         /** @var  $group FilterGroup */
         foreach ($variantGroups as $group) {
@@ -48,7 +48,7 @@ class ProductVariantFacetResult extends FacetResultGroup
             $facetResults,
             $label,
             'SwagVariantFilter',
-            []
+            array()
         );
     }
 

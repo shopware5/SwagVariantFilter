@@ -48,7 +48,7 @@ class ProductVariantCondition implements ConditionInterface
             case self::FORMAT_GROUPED:
                 return $this->productVariantIds;
             case self::FORMAT_FLAT:
-                $ret = [];
+                $ret = array();
                 foreach($this->productVariantIds as $variantIds) {
                     foreach($variantIds as $variantId) {
                         $ret[] = $variantId;

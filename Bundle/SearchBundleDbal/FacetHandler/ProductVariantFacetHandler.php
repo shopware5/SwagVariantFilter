@@ -61,7 +61,7 @@ class ProductVariantFacetHandler implements FacetHandlerInterface
         Struct\ShopContextInterface $context
     )
     {
-        $activeOptions = [];
+        $activeOptions = array();
 
         $productVariantCondition = $criteria->getCondition('swag-variant-filter-product-variant');
 

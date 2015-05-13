@@ -53,12 +53,12 @@ class ServiceContainer implements SubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return [
+        return array(
             'Enlight_Bootstrap_InitResource_SwagVariantFilterProductVariantService' => 'getFilterService',
             'Enlight_Bootstrap_InitResource_SwagVariantFilterAccessibilityService' => 'getAccessibilityService',
             'Enlight_Bootstrap_InitResource_SwagVariantFilterRequestAdapter' => 'getRequestAdapter',
             'Enlight_Bootstrap_InitResource_SwagVariantFilterConfigAdapter' => 'getConfigAdapter',
-        ];
+        );
     }
 
     /**

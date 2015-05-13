@@ -29,18 +29,18 @@ class Filter implements SubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return [
+        return array(
             'Enlight_Controller_Action_PreDispatch_Frontend_Listing' => 'inspectRequest',
             'Enlight_Controller_Action_PreDispatch_Widgets_Listing' => 'inspectRequest',
             'Shopware_SearchBundle_Collect_Criteria_Request_Handlers' => 'getVariantRequestHandler',
             'Shopware_SearchBundle_Create_Listing_Criteria' => 'addMinStockCondition',
             'Shopware_SearchBundle_Create_Ajax_Count_Criteria' => 'addMinStockCondition',
-            'Shopware_SearchBundleDBAL_Collect_Condition_Handlers' => [
-                ['getVariantConditionHandler'],
-                ['getMinStockConditionHandler'],
-            ],
+            'Shopware_SearchBundleDBAL_Collect_Condition_Handlers' => array(
+                array('getVariantConditionHandler'),
+                array('getMinStockConditionHandler'),
+            ),
             'Shopware_SearchBundleDBAL_Collect_Facet_Handlers' => 'getVariantFilterFacetHandler'
-        ];
+        );
     }
 
     public function inspectRequest(\Enlight_Event_EventArgs $args)
