@@ -8,10 +8,11 @@
     "link": "http://store.shopware.com",
     "author": "Shopware AG",
 
-    "currentVersion": "2.0.0",
+    "currentVersion": "2.0.1",
 
     "changelog": {
         "de": {
+            "2.0.1": "PT-3182 - Bugfix: Einstellung min. Lagerbestand wurde ignoriert;",
             "2.0.0": "PT-2937 - Feature: Shopware 5 Kompatibilität",
             "1.0.1": "Korrektur: Paginierung; Korrektur: Behalte Filter bei Paginierung bei",
             "1.0.2": "Korrektur: Paginierung",
@@ -21,6 +22,7 @@
             "1.0.6": "PT-2175: Filterüberschrift als span-Tag; PT-2607: getVersion()-Methode korrigiert"
         },
         "en": {
+            "2.0.1": "PT-3182 - Bugfix: Setting min stock was ignored;",
             "2.0.0": "PT-2937 - Feature: Shopware 5 compatibility",
             "1.0.1": "Fixes number of total pages shown; Stops filters from being lost when changing pages",
             "1.0.2": "Fix pagination issues",
