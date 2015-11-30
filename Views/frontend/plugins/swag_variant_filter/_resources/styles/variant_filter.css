@@ -1,0 +1,13 @@
+.headingbox_nobg {
+    border-bottom: 0 !important;
+    background-color: white !important;
+}
+
+.activeVariant{
+    background-image: none !important;
+    margin-left: -29px !important;
+}
+
+.filter_properties .filter-heading {
+    display: block;
+}
