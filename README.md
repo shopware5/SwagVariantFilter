@@ -1,5 +1,8 @@
 # SwagVariantFilter
 
+## Supported versions
+Shopware version 4.2.0 or higher
+
 ## Description
 This plugin automatically reads every item variation and group of variants of a defined category. 
 This information can be used for category listings as an additional filter (i.e. "Size"). 

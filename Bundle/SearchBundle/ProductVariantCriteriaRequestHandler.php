@@ -1,7 +1,13 @@
 <?php
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace Shopware\SwagVariantFilter\Bundle\SearchBundle;
-
 
 use Enlight_Controller_Request_RequestHttp as Request;
 use Shopware\Bundle\SearchBundle\Criteria;
@@ -38,17 +44,16 @@ class ProductVariantCriteriaRequestHandler implements CriteriaRequestHandlerInte
         Request $request,
         Criteria $criteria,
         ShopContextInterface $context
-    )
-    {
+    ) {
         $criteria->addFacet(
             new ProductVariantFacet()
         );
 
-        if(!$this->requestAdapater->hasVariantIds()) {
+        if (!$this->requestAdapater->hasVariantIds()) {
             return;
         }
 
-        if(!$this->requestAdapater->isMultiDimensional()) {
+        if (!$this->requestAdapater->isMultiDimensional()) {
             return;
         }
 

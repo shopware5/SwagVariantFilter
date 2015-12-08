@@ -1,6 +1,13 @@
 <?php
-namespace Shopware\SwagVariantFilter\Bundle\SearchBundleDbal\ConditionHandler;
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
+namespace Shopware\SwagVariantFilter\Bundle\SearchBundleDbal\ConditionHandler;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Bundle\SearchBundle\ConditionInterface;
@@ -32,8 +39,7 @@ class ProductVariantConditionHandler implements ConditionHandlerInterface
         ConditionInterface $condition,
         QueryBuilder $query,
         ShopContextInterface $context
-    )
-    {
+    ) {
         $ids = $condition->getProductVariantIds();
 
         if (!$ids) {
@@ -48,7 +54,7 @@ class ProductVariantConditionHandler implements ConditionHandlerInterface
                 'variantFilterArticleDetails.articleID = product.id'
             );
 
-        foreach($ids as $groupId => $variantOptions) {
+        foreach ($ids as $groupId => $variantOptions) {
             $tableAlias = 'variantFilterArticleDetails' . $groupId;
             $paramAlias = ':options' . $groupId;
 

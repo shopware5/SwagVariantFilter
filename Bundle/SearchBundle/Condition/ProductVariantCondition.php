@@ -1,7 +1,13 @@
 <?php
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace Shopware\SwagVariantFilter\Bundle\SearchBundle\Condition;
-
 
 use Shopware\Bundle\SearchBundle\ConditionInterface;
 
@@ -44,13 +50,13 @@ class ProductVariantCondition implements ConditionInterface
      */
     public function getProductVariantIds($format = 'grouped')
     {
-        switch($format) {
+        switch ($format) {
             case self::FORMAT_GROUPED:
                 return $this->productVariantIds;
             case self::FORMAT_FLAT:
                 $ret = array();
-                foreach($this->productVariantIds as $variantIds) {
-                    foreach($variantIds as $variantId) {
+                foreach ($this->productVariantIds as $variantIds) {
+                    foreach ($variantIds as $variantId) {
                         $ret[] = $variantId;
                     }
                 }

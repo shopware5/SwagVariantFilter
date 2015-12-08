@@ -1,4 +1,12 @@
 <?php
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
+
 namespace Shopware\SwagVariantFilter\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
@@ -50,7 +58,7 @@ class Filter implements SubscriberInterface
         $request = $args->getSubject()->Request();
         $categoryId = $request->sCategory;
 
-        if(!$categoryId) {
+        if (!$categoryId) {
             return;
         }
 

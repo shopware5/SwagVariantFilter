@@ -1,5 +1,11 @@
 <?php
-
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace Shopware\SwagVariantFilter\Components\Common;
 
@@ -10,7 +16,8 @@ namespace Shopware\SwagVariantFilter\Components\Common;
  *
  * @package Shopware\SwagVariantFilter\Components\Common
  */
-class ConfiguratorTranslate {
+class ConfiguratorTranslate
+{
 
     const KEY = 'name';
 
@@ -39,12 +46,13 @@ class ConfiguratorTranslate {
      * @param int $localeId
      * @param $fallbackLocaleId
      */
-    public function __construct(DatabaseAdapter $dbAdapter, $localeId, $fallbackLocaleId) {
-        if(!$localeId) {
+    public function __construct(DatabaseAdapter $dbAdapter, $localeId, $fallbackLocaleId)
+    {
+        if (!$localeId) {
             throw new \InvalidArgumentException('Missing required param $localeId');
         }
 
-        if(!$fallbackLocaleId) {
+        if (!$fallbackLocaleId) {
             throw new \InvalidArgumentException('Missing required param $fallbackLocaleId');
         }
 
@@ -58,10 +66,11 @@ class ConfiguratorTranslate {
      * @param string $default
      * @return string
      */
-    public function getOptionLabel($id, $default = '') {
+    public function getOptionLabel($id, $default = '')
+    {
         $optionTranslations = $this->getOptionTranslations();
 
-        if(!isset($optionTranslations[$id]) || !$optionTranslations[$id]) {
+        if (!isset($optionTranslations[$id]) || !$optionTranslations[$id]) {
             return $default;
         }
 
@@ -73,10 +82,11 @@ class ConfiguratorTranslate {
      * @param string $default
      * @return string
      */
-    public function getGroupLabel($id, $default = '') {
+    public function getGroupLabel($id, $default = '')
+    {
         $groupTranslations = $this->getGroupTranslations();
 
-        if(!isset($groupTranslations[$id]) || !$groupTranslations[$id]) {
+        if (!isset($groupTranslations[$id]) || !$groupTranslations[$id]) {
             return $default;
         }
 
@@ -86,7 +96,8 @@ class ConfiguratorTranslate {
     /**
      * @return array
      */
-    private function getGroupTranslations() {
+    private function getGroupTranslations()
+    {
         $ret = $this->getTranslations();
         return $ret['groups'];
     }
@@ -94,7 +105,8 @@ class ConfiguratorTranslate {
     /**
      * @return array
      */
-    private function getOptionTranslations() {
+    private function getOptionTranslations()
+    {
         $ret = $this->getTranslations();
         return $ret['options'];
     }
@@ -102,8 +114,9 @@ class ConfiguratorTranslate {
     /**
      * @return array
      */
-    private function getTranslations() {
-        if(!$this->translations) {
+    private function getTranslations()
+    {
+        if (!$this->translations) {
             $this->translations = array(
                 'groups' => array(),
                 'options' => array(),
@@ -117,13 +130,14 @@ class ConfiguratorTranslate {
     /**
      * @throws \Exception
      */
-    private function loadTranslations() {
+    private function loadTranslations()
+    {
 
         // all keys may be multiple times in result set, the first is allways the most important
         $rawTranslateData = $this->dbAdapter->getConfiguratorTranslations($this->localeId, $this->fallbackLocaleId);
 
-        foreach($rawTranslateData as $translation) {
-            switch($translation['objecttype']) {
+        foreach ($rawTranslateData as $translation) {
+            switch ($translation['objecttype']) {
                 case 'configuratorgroup':
                     $currentGroup = &$this->translations['groups'];
                     break;
@@ -134,18 +148,18 @@ class ConfiguratorTranslate {
                     throw new \Exception('Invalid objectttype in resultset "' . $translation['objecttype'] . '"');
             }
 
-            if(!$translation['objectdata']) {
+            if (!$translation['objectdata']) {
                 continue;
             }
 
             $data = unserialize($translation['objectdata']);
 
-            if(!isset($data['name']) || !$data['name']) {
+            if (!isset($data['name']) || !$data['name']) {
                 continue;
             }
 
             //remove duplicates
-            if(isset($currentGroup[$translation['objectkey']])) {
+            if (isset($currentGroup[$translation['objectkey']])) {
                 continue;
             }
 

@@ -1,5 +1,11 @@
 <?php
-
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace Shopware\SwagVariantFilter\Subscriber;
 
@@ -11,7 +17,8 @@ use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 use Shopware\SwagVariantFilter\Components\LegacyResponseExtender;
 use Shopware\SwagVariantFilter\Components\LegacyFilterService;
 
-class LegacyServiceContainer implements SubscriberInterface {
+class LegacyServiceContainer implements SubscriberInterface
+{
 
     /**
      * @var RequestHelper
@@ -36,9 +43,7 @@ class LegacyServiceContainer implements SubscriberInterface {
     public function __construct(RequestHelper $requestHelper)
     {
         $this->requestHelper = $requestHelper;
-
-
-       }
+    }
 
     /**
      * {@inheritdoc}
@@ -54,7 +59,8 @@ class LegacyServiceContainer implements SubscriberInterface {
     /**
      * @return LegacyFilterService
      */
-    public function getLegacyFilterService() {
+    public function getLegacyFilterService()
+    {
         return new LegacyFilterService(
             $this->requestHelper,
             $this->getConfigAdapter(),
@@ -66,7 +72,8 @@ class LegacyServiceContainer implements SubscriberInterface {
     /**
      * @return LegacyResponseExtender
      */
-    public function getLegacyQueryExtender() {
+    public function getLegacyQueryExtender()
+    {
         return new LegacyResponseExtender(
             $this->requestHelper,
             $this->getConfigAdapter(),
@@ -77,8 +84,9 @@ class LegacyServiceContainer implements SubscriberInterface {
     /**
      * @return ConfigAdapter
      */
-    private function getConfigAdapter() {
-        if(!$this->configAdapter) {
+    private function getConfigAdapter()
+    {
+        if (!$this->configAdapter) {
             $this->configAdapter = new ConfigAdapter(
                 Shopware()->Plugins()->Frontend()->SwagVariantFilter()->Config()
             );
@@ -90,8 +98,9 @@ class LegacyServiceContainer implements SubscriberInterface {
     /**
      * @return DatabaseAdapter
      */
-    private function getDatabaseAdapter() {
-        if(!$this->databaseAdapter) {
+    private function getDatabaseAdapter()
+    {
+        if (!$this->databaseAdapter) {
             $this->databaseAdapter = new DatabaseAdapter();
         }
 
@@ -101,11 +110,11 @@ class LegacyServiceContainer implements SubscriberInterface {
     /**
      * @return ConfiguratorTranslate
      */
-    private function getTranslate() {
-        if(!$this->translate) {
-
+    private function getTranslate()
+    {
+        if (!$this->translate) {
             $fallbackLocaleId = -1;
-            if(Shopware()->Shop()->getFallback()) {
+            if (Shopware()->Shop()->getFallback()) {
                 $fallbackLocaleId = Shopware()->Shop()->getFallback()->getLocale()->getId();
             }
 
