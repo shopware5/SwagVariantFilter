@@ -1,7 +1,6 @@
 # SwagVariantFilter
-
-## Supported versions
-Shopware version 4.2.0 or higher
+> Working with Shopware version 4.2.0 to 5.1.1.
+> Higher versions may work either but were not tested.
 
 ## Description
 This plugin automatically reads every item variation and group of variants of a defined category. 
