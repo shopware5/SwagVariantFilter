@@ -25,7 +25,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     {
         $this->createForm();
         $this->createTranslations();
-        $this->subscribeEvent('Enlight_Controller_Front_DispatchLoopStartup', 'onStartDispatch');
+        $this->subscribeEvent('Enlight_Controller_Action_PreDispatch_Frontend', 'onStartDispatch');
 
         return true;
     }
@@ -99,6 +99,8 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function update($version)
     {
+        $this->subscribeEvent('Enlight_Controller_Action_PreDispatch_Frontend', 'onStartDispatch');
+
         return true;
     }
 
