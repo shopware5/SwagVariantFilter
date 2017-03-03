@@ -41,9 +41,9 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     /**
      * Init Services & Subscribers
      *
-     * @param Enlight_Controller_EventArgs $args
+     * @param Enlight_Controller_ActionEventArgs $args
      */
-    public function onStartDispatch(Enlight_Controller_EventArgs $args)
+    public function onStartDispatch(Enlight_Controller_ActionEventArgs $args)
     {
         if (!$this->assertVersionGreaterThen('5')) {
             $this->initializeLegacy($args);
