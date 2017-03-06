@@ -1,13 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jpietrzyk
- * Date: 13.04.15
- * Time: 14:01
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
  */
 
 namespace Shopware\SwagVariantFilter\Bundle\SearchBundle\FacetResult;
-
 
 use Shopware\Bundle\SearchBundle\FacetResult\FacetResultGroup;
 use Shopware\Bundle\SearchBundle\FacetResult\ValueListFacetResult;

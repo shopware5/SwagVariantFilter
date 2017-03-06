@@ -1,7 +1,13 @@
 <?php
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace Shopware\SwagVariantFilter\Subscriber;
-
 
 use Enlight\Event\SubscriberInterface;
 use Shopware\SwagVariantFilter\Components\AccessibilityService;
@@ -45,7 +51,6 @@ class ServiceContainer implements SubscriberInterface
         $this->config = $config;
         $this->request = $request;
         $this->container = Shopware()->Container();
-
     }
 
     /**
@@ -79,7 +84,7 @@ class ServiceContainer implements SubscriberInterface
         $dbAdapter = $this->createDbAdapater();
 
         $fallbackLocaleId = -1;
-        if(Shopware()->Shop()->getFallback()) {
+        if (Shopware()->Shop()->getFallback()) {
             $fallbackLocaleId = Shopware()->Shop()->getFallback()->getLocale()->getId();
         }
 
@@ -127,7 +132,8 @@ class ServiceContainer implements SubscriberInterface
      * @param $localeId
      * @return ConfiguratorTranslate
      */
-    private function createTranlate(DatabaseAdapter $dbAdapter, $localeId, $fallbackLocaleId) {
+    private function createTranlate(DatabaseAdapter $dbAdapter, $localeId, $fallbackLocaleId)
+    {
         return new ConfiguratorTranslate($dbAdapter, $localeId, $fallbackLocaleId);
     }
 }

@@ -1,4 +1,11 @@
 <?php
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace Shopware\SwagVariantFilter\Components\Common;
 
@@ -35,14 +42,14 @@ class RequestAdapter
         $params = $request->getParams();
         $ids = array();
 
-        foreach($params as $paramName => $paramValue) {
-            if(strpos($paramName, self::PARAM_NAME) !== 0) {
+        foreach ($params as $paramName => $paramValue) {
+            if (strpos($paramName, self::PARAM_NAME) !== 0) {
                 continue;
             }
 
             $parts = explode('_', $paramName);
 
-            if(count($parts) !== 3) {
+            if (count($parts) !== 3) {
                 $ids = explode('|', $paramValue);
                 break;
             }
@@ -50,11 +57,11 @@ class RequestAdapter
             $ids[$parts[2]] = explode('|', $paramValue);
         }
 
-        if(!$ids) {
+        if (!$ids) {
             return;
         }
 
-        if(!$request->has(self::PARAM_NAME)) {
+        if (!$request->has(self::PARAM_NAME)) {
             $this->isGrouped = true;
         }
 
@@ -92,6 +99,4 @@ class RequestAdapter
     {
         return $this->isGrouped;
     }
-
-
 }

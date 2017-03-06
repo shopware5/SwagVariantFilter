@@ -1,8 +1,13 @@
 <?php
-
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace Shopware\SwagVariantFilter\Bundle\SearchBundleDbal\ConditionHandler;
-
 
 use Shopware\Bundle\SearchBundle\ConditionInterface;
 use Shopware\Bundle\SearchBundleDBAL\ConditionHandlerInterface;
@@ -45,8 +50,7 @@ class MinStockConditionHandler implements ConditionHandlerInterface
         ConditionInterface $condition,
         QueryBuilder $query,
         ShopContextInterface $context
-    )
-    {
+    ) {
         if (!$condition->hasMinStock()) {
             return;
         }

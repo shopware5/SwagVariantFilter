@@ -1,4 +1,12 @@
 <?php
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
+
 namespace Shopware\SwagVariantFilter\Components\Common;
 
 use Doctrine\DBAL\Driver\PDOStatement;
@@ -136,13 +144,14 @@ class DatabaseAdapter
      * @param $language
      * @return \Doctrine\DBAL\Query\QueryBuilder
      */
-    public function getConfiguratorTranslations($languageId, $fallbackLanguageId) {
-        if(!$languageId) {
+    public function getConfiguratorTranslations($languageId, $fallbackLanguageId)
+    {
+        if (!$languageId) {
             throw new \InvalidArgumentException('Missing required argument $languageId');
         }
 
         $order = 'ASC';
-        if($languageId > $fallbackLanguageId) {
+        if ($languageId > $fallbackLanguageId) {
             $order = 'DESC';
         }
 

@@ -1,33 +1,10 @@
 <?php
-/**
- * Shopware 4.0
- * Copyright © 2012 shopware AG
+/*
+ * (c) shopware AG <info@shopware.com>
  *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- *
- * @category   Shopware
- * @package    Shopware_Plugins
- * @subpackage Plugin
- * @copyright  Copyright (c) 2012, shopware AG (http://www.shopware.de)
- * @version    1
- * @author     shopware AG
- * @author     $Author$
  */
 
 /**
@@ -48,7 +25,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     {
         $this->createForm();
         $this->createTranslations();
-        $this->subscribeEvent('Enlight_Controller_Front_DispatchLoopStartup', 'onStartDispatch');
+        $this->subscribeEvent('Enlight_Controller_Action_PreDispatch_Frontend', 'onStartDispatch');
 
         return true;
     }
@@ -68,7 +45,7 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function onStartDispatch(Enlight_Controller_EventArgs $args)
     {
-        if(!$this->assertVersionGreaterThen('5')) {
+        if (!$this->assertVersionGreaterThen('5')) {
             $this->initializeLegacy($args);
             return;
         }
@@ -122,6 +99,8 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      */
     public function update($version)
     {
+        $this->subscribeEvent('Enlight_Controller_Action_PreDispatch_Frontend', 'onStartDispatch');
+
         return true;
     }
 
@@ -145,7 +124,6 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
             'required' => true,
             'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
         ));
-
     }
 
     /**

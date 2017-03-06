@@ -1,4 +1,11 @@
 <?php
+/*
+ * (c) shopware AG <info@shopware.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace Shopware\SwagVariantFilter\Bundle\SearchBundleDbal\FacetHandler;
 
@@ -40,8 +47,7 @@ class ProductVariantFacetHandler implements FacetHandlerInterface
         ProductVariantService $productVariantService,
         QueryBuilderFactory $queryBuilderFactory,
         \Enlight_Components_Snippet_Namespace $snippetNamespace
-    )
-    {
+    ) {
         $this->productVariantService = $productVariantService;
         $this->queryBuilderFactory = $queryBuilderFactory;
         $this->snippetNamespace = $snippetNamespace;
@@ -59,8 +65,7 @@ class ProductVariantFacetHandler implements FacetHandlerInterface
         FacetInterface $facet,
         Criteria $criteria,
         Struct\ShopContextInterface $context
-    )
-    {
+    ) {
         $activeOptions = array();
 
         $productVariantCondition = $criteria->getCondition('swag-variant-filter-product-variant');
@@ -92,7 +97,7 @@ class ProductVariantFacetHandler implements FacetHandlerInterface
 
         $filterConditions = $this->productVariantService->getFilterConditions($ids, $activeOptions);
 
-        if(!$filterConditions) {
+        if (!$filterConditions) {
             return null;
         }
 
