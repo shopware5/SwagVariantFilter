@@ -9,6 +9,8 @@
 
 namespace Shopware\SwagVariantFilter\Components\Common;
 
+use Shopware\SwagVariantFilter\Components\Filter\FilterGroup;
+
 /**
  * Class ServiceAbstract
  *
@@ -31,7 +33,7 @@ abstract class ServiceAbstract
     /**
      * @param $values
      * @param array $activeOptionIds
-     * @return Shopware\SwagVariantFilter\Components\Common\FilterGroup[]
+     * @return FilterGroup[]
      */
     public function getFilterConditions($values, array $activeOptionIds = array())
     {
@@ -46,7 +48,7 @@ abstract class ServiceAbstract
     /**
      * @param array $rawConditionData
      * @param array $activeOptionIds
-     * @return Shopware\SwagVariantFilter\Components\Common\FilterGroup[]
+     * @return FilterGroup[]
      */
     private function hydrateConditionData(array $rawConditionData, array $activeOptionIds)
     {

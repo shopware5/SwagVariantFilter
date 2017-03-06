@@ -10,7 +10,6 @@
 namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
 
 use Shopware\SwagVariantFilter\Components\Common\FilterOptionAbstract;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 
 /**
  * Class FilterOption

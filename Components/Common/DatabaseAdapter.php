@@ -29,6 +29,9 @@ class DatabaseAdapter
      */
     protected $subCategories = array();
 
+    /**
+     * @return \Doctrine\DBAL\Query\QueryBuilder
+     */
     private function getConfigurationOptionQueryBuilder()
     {
         return Shopware()->Models()->getDBALQueryBuilder()
@@ -38,7 +41,8 @@ class DatabaseAdapter
                 'opt',
                 's_article_configurator_groups',
                 'gr',
-                'opt.group_id = gr.id')
+                'opt.group_id = gr.id'
+            )
             ->innerJoin(
                 'gr',
                 's_article_configurator_option_relations',
@@ -73,7 +77,8 @@ class DatabaseAdapter
             ->where('cat.categoryID IN (:subcategoryIds)')
             ->setParameter(
                 ':subcategoryIds',
-                $subCategories, Connection::PARAM_INT_ARRAY
+                $subCategories,
+                Connection::PARAM_INT_ARRAY
             );
 
         return $builder->execute()

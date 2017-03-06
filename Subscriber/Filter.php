@@ -52,6 +52,9 @@ class Filter implements SubscriberInterface
         );
     }
 
+    /**
+     * @param \Enlight_Event_EventArgs $args
+     */
     public function inspectRequest(\Enlight_Event_EventArgs $args)
     {
         /** @var \Enlight_Controller_Request_Request $request */
@@ -91,6 +94,9 @@ class Filter implements SubscriberInterface
         );
     }
 
+    /**
+     * @return ProductVariantCriteriaRequestHandler
+     */
     public function getVariantRequestHandler()
     {
         if (!$this->getAccessibilityService()->isValid()) {
@@ -102,6 +108,9 @@ class Filter implements SubscriberInterface
         );
     }
 
+    /**
+     * @return ProductVariantFacetHandler
+     */
     public function getVariantFilterFacetHandler()
     {
         return new ProductVariantFacetHandler(
@@ -111,11 +120,17 @@ class Filter implements SubscriberInterface
         );
     }
 
+    /**
+     * @return ProductVariantConditionHandler
+     */
     public function getVariantConditionHandler()
     {
         return new ProductVariantConditionHandler();
     }
 
+    /**
+     * @return MinStockConditionHandler
+     */
     public function getMinStockConditionHandler()
     {
         return new MinStockConditionHandler();

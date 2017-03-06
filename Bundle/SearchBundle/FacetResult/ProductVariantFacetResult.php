@@ -12,7 +12,7 @@ namespace Shopware\SwagVariantFilter\Bundle\SearchBundle\FacetResult;
 use Shopware\Bundle\SearchBundle\FacetResult\FacetResultGroup;
 use Shopware\Bundle\SearchBundle\FacetResult\ValueListFacetResult;
 use Shopware\SwagVariantFilter\Components\Common\RequestAdapter;
-use Shopware\SwagVariantFilter\Components\Common\FilterGroup;
+use Shopware\SwagVariantFilter\Components\Filter\FilterGroup;
 
 /**
  * Class ProductVariantFacetResult

@@ -13,6 +13,10 @@ use \Shopware\SwagVariantFilter\Components\Common\FilterDataFactory as AbstractF
 
 class FilterDataByOptionFactory extends AbstractFactory
 {
+    /**
+     * @param $values
+     * @return mixed
+     */
     public function getRawData($values)
     {
         if (!is_array($values)) {

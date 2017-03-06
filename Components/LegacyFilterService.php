@@ -14,7 +14,6 @@ use Shopware\SwagVariantFilter\Components\Common\ConfigAdapter;
 use Shopware\SwagVariantFilter\Components\Common\ConfiguratorTranslate;
 use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
 use Shopware\SwagVariantFilter\Components\Common\FilterDataFactory;
-use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
 use Shopware\SwagVariantFilter\Components\Common\ServiceAbstract;
 use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterDataByCategoryFactory;
 use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterGroup;
@@ -33,19 +32,13 @@ use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
  */
 class LegacyFilterService extends ServiceAbstract implements AccessibilityInterface
 {
-
-    /**
-     * @var DatabaseAdapter
-     */
-    private $databaseAdapter;
-
     /**
      * @var RequestHelper
      */
     private $requestHelper;
 
     /**
-     * @var OptionHelper
+     * @var ConfigAdapter
      */
     private $optionHelper;
 

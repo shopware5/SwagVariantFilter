@@ -41,11 +41,11 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
     /**
      * Init Services & Subscribers
      *
-     * @param Enlight_Controller_EventArgs $args
+     * @param Enlight_Controller_ActionEventArgs $args
      */
-    public function onStartDispatch(Enlight_Controller_EventArgs $args)
+    public function onStartDispatch(Enlight_Controller_ActionEventArgs $args)
     {
-        if (!$this->assertVersionGreaterThen('5')) {
+        if (!$this->assertMinimumVersion('5')) {
             $this->initializeLegacy($args);
             return;
         }
@@ -62,16 +62,18 @@ class Shopware_Plugins_Frontend_SwagVariantFilter_Bootstrap extends Shopware_Com
      *
      * @param $args
      */
-    private function initializeLegacy(Enlight_Controller_EventArgs $args)
+    private function initializeLegacy(Enlight_Controller_ActionEventArgs $args)
     {
         $requestHelper = new \Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper($args->getRequest());
         $this->Application()->Events()->addSubscriber(new \Shopware\SwagVariantFilter\Subscriber\LegacyServiceContainer($requestHelper));
         $this->Application()->Events()->addSubscriber(new Shopware\SwagVariantFilter\Subscriber\Legacy($requestHelper));
     }
 
-    /*
+    /**
      * Return Plugin-Version
+     *
      * @return String
+     * @throws Exception
      */
     public function getVersion()
     {

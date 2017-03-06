@@ -9,8 +9,6 @@
 
 namespace Shopware\SwagVariantFilter\Components\Common;
 
-use Shopware\SwagVariantFilter\Components\Common\DatabaseAdapter;
-
 /**
  * Class FilterDataFactory
  *

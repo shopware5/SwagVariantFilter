@@ -22,7 +22,7 @@ class AccessibilityService implements AccessibilityInterface
     /**
      * @var null|bool
      */
-    private $isAccessible = null;
+    private $isAccessible;
 
     /**
      * @var ConfigAdapter
@@ -32,7 +32,7 @@ class AccessibilityService implements AccessibilityInterface
     /**
      * @param ConfigAdapter $adapter
      */
-    public function __Construct(ConfigAdapter $adapter)
+    public function __construct(ConfigAdapter $adapter)
     {
         $this->configAdapter = $adapter;
     }

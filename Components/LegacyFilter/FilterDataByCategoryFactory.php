@@ -20,7 +20,10 @@ use Shopware\SwagVariantFilter\Components\Common\FilterDataFactory;
  */
 class FilterDataByCategoryFactory extends FilterDataFactory
 {
-
+    /**
+     * @param $values
+     * @return mixed
+     */
     public function getRawData($values)
     {
         if (!is_array($values)) {

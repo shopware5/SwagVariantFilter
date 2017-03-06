@@ -9,9 +9,7 @@
 
 namespace Shopware\SwagVariantFilter\Components\LegacyFilter;
 
-use Shopware\SwagVariantFilter\Components\LegacyFilter\FilterOption;
 use Shopware\SwagVariantFilter\Components\Common\FilterGroupAbstract;
-use Shopware\SwagVariantFilter\Components\LegacyFilter\RequestHelper;
 
 /**
  * Class FilterGroup
@@ -25,6 +23,13 @@ class FilterGroup extends FilterGroupAbstract
      */
     private $requestHelper;
 
+    /**
+     * FilterGroup constructor.
+     *
+     * @param RequestHelper $requestHelper
+     * @param string $id
+     * @param $label
+     */
     public function __construct(RequestHelper $requestHelper, $id, $label)
     {
         parent::__construct($id, $label);
